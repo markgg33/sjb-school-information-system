@@ -238,7 +238,9 @@ if ($_SESSION['role'] !== 'admin') {
     <script src="js/courses.js"></script>
     <script src="js/admin.js"></script>
     <script src="js/curriculum.js"></script>
+    <script src="js/students.js"></script>
     <script src="js/subjects.js"></script>
+
 
 
 </body>

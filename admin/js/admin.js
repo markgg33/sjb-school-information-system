@@ -31,8 +31,13 @@ function loadPage(page) {
     //FOR SUBJECTS
     if (page === "subjects") {
       loadCourseFilter();
-
       loadSubjects();
+    }
+
+    //FOR STUDENTS
+    if (page === "students") {
+      loadStudentCourses();
+      loadStudents();
     }
   });
 }

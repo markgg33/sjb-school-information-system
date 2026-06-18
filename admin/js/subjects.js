@@ -9,7 +9,7 @@ function loadSubjects(
   search = "",
   page = 1,
 ) {
-  //Loader.show("Loading subjects...");
+  Loader.show("Loading subjects...");
 
   $.ajax({
     url: "ajax/get_subjects.php",
@@ -126,7 +126,9 @@ function loadSubjects(
     },
 
     complete: function () {
-      Loader.hide();
+      setTimeout(() => {
+        Loader.hide();
+      }, 500);
     },
   });
 }
@@ -193,16 +195,17 @@ $(document).on(
 // OPEN MODAL
 //=======================================
 
-$(document).on("click", "#btnAddSubject", function () {
-  $("#subjectForm")[0].reset();
+$(document).on("click", "#btnAddStudent", function () {
+  $("#studentForm")[0].reset();
 
-  $("#subjectId").val("");
+  $("#studentId").val("");
 
-  $(".modal-title").text("Add Subject");
+  $("#studentModal .modal-title").text("Add Student");
 
-  new bootstrap.Modal(document.getElementById("subjectModal")).show();
+  $("#studentCourse").val("");
+
+  new bootstrap.Modal(document.getElementById("studentModal")).show();
 });
-
 //=======================================
 // EDIT SUBJECT
 //=======================================

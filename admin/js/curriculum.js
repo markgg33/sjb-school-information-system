@@ -153,6 +153,7 @@ $(document).on("click", "#loadSubjectsBtn", function () {
 //=======================================
 
 function loadCurrentCurriculum() {
+  Loader.show("Loading curriculum...");
   /*subjectUnitsMap = {};
   selectedSubjects = [];*/
 
@@ -277,12 +278,10 @@ function loadCurrentCurriculum() {
         `;
 
       $("#curriculumTableContainer").html(html);
+    },
 
-      /*loadSubjectsChecklist(
-        $("#curriculumSubjectSearch").val(),
-        $("#curriculumUnitsFilter").val(),
-        1,
-      );*/
+    error: function () {
+      AlertService.error("Unable to load curriculum.");
     },
 
     complete: function () {
@@ -291,6 +290,10 @@ function loadCurrentCurriculum() {
         $("#curriculumUnitsFilter").val(),
         1,
       );
+
+      setTimeout(() => {
+        Loader.hide();
+      }, 500);
     },
   });
 }
