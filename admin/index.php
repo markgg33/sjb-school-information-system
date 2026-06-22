@@ -240,7 +240,8 @@ if ($_SESSION['role'] !== 'admin') {
     <script src="js/curriculum.js"></script>
     <script src="js/students.js"></script>
     <script src="js/subjects.js"></script>
-
+    <script src="js/faculty.js"></script>
+    <script src="js/enrollment.js"></script>
 
 
 </body>

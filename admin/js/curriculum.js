@@ -36,8 +36,8 @@ function loadCurriculumCourses() {
 
 function loadSubjectsChecklist(search = "", units = "", page = 1) {
   const courseId = $("#courseSelect").val();
-  const yearLevel = $("#yearLevel").val();
-  const trimester = $("#trimester").val();
+  const yearLevel = $("#curriculumYearLevel").val();
+  const trimester = $("#curriculumTrimester").val();
 
   //Loading.show("Loading subjects...");
 
@@ -136,8 +136,8 @@ $(document).on("click", "#loadSubjectsBtn", function () {
   subjectUnitsMap = {};
 
   const courseId = $("#courseSelect").val();
-  const yearLevel = $("#yearLevel").val();
-  const trimester = $("#trimester").val();
+  const yearLevel = $("#curriculumYearLevel").val();
+  const trimester = $("#curriculumTrimester").val();
 
   if (!courseId || !yearLevel || !trimester) {
     AlertService.warning("Please complete all selections.");
@@ -158,8 +158,8 @@ function loadCurrentCurriculum() {
   selectedSubjects = [];*/
 
   const courseId = $("#courseSelect").val();
-  const yearLevel = $("#yearLevel").val();
-  const trimester = $("#trimester").val();
+  const yearLevel = $("#curriculumYearLevel").val();
+  const trimester = $("#curriculumTrimester").val();
 
   if (!courseId || !yearLevel || !trimester) {
     return;
@@ -182,6 +182,7 @@ function loadCurrentCurriculum() {
       selectedSubjects = [];
       subjectUnitsMap = {};
       if (subjects.length === 0) {
+        updateSelectedUnits();
         $("#curriculumTableContainer").html(`
             <div class="text-center py-5 text-muted">
                 No subjects assigned yet.
@@ -321,8 +322,8 @@ $(document).on("click", "#saveCurriculumBtn", function () {
     "ajax/check_curriculum_exists.php",
     {
       course_id: $("#courseSelect").val(),
-      year_level: $("#yearLevel").val(),
-      trimester: $("#trimester").val(),
+      year_level: $("#curriculumYearLevel").val(),
+      trimester: $("#curriculumTrimester").val(),
     },
     function (check) {
       const proceedSave = () => {
@@ -335,8 +336,8 @@ $(document).on("click", "#saveCurriculumBtn", function () {
 
           data: {
             course_id: $("#courseSelect").val(),
-            year_level: $("#yearLevel").val(),
-            trimester: $("#trimester").val(),
+            year_level: $("#curriculumYearLevel").val(),
+            trimester: $("#curriculumTrimester").val(),
             subjects: subjects,
           },
 

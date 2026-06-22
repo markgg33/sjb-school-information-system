@@ -195,16 +195,16 @@ $(document).on(
 // OPEN MODAL
 //=======================================
 
-$(document).on("click", "#btnAddStudent", function () {
-  $("#studentForm")[0].reset();
+$(document).on("click", "#btnAddSubject", function () {
+  $("#subjectForm")[0].reset();
 
-  $("#studentId").val("");
+  $("#subjectId").val("");
 
-  $("#studentModal .modal-title").text("Add Student");
+  $("#subjectModal .modal-title").text("Add Subject");
 
-  $("#studentCourse").val("");
+  $('[name="status"]').val("active");
 
-  new bootstrap.Modal(document.getElementById("studentModal")).show();
+  new bootstrap.Modal(document.getElementById("subjectModal")).show();
 });
 //=======================================
 // EDIT SUBJECT

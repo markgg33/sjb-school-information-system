@@ -65,7 +65,19 @@ function loadStudents(page = 1) {
         html = `
           <tr>
             <td colspan="7" class="text-center py-5">
-              No students found.
+                <div class="empty-state">
+
+                 <i class="fa-regular fa-circle-user empty-icon"></i>
+
+                    <h6 class="mt-3 mb-1">
+                        No students found
+                    </h6>
+
+                <p class="text-muted mb-0">
+                  No matching students were found.
+                </p>
+
+              </div>
             </td>
           </tr>
         `;
@@ -132,7 +144,7 @@ function loadStudents(page = 1) {
             </td>
 
             <td>
-              ${genderBadge}
+              ${student.gender}
             </td>
 
             <td>

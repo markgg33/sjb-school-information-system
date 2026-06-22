@@ -51,7 +51,7 @@
 
                 <select
                     class="form-select modern-input"
-                    id="yearLevel">
+                    id="curriculumYearLevel">
 
                     <option value="">
                         Select Year Level
@@ -73,7 +73,7 @@
 
                 <select
                     class="form-select modern-input"
-                    id="trimester">
+                    id="curriculumTrimester">
 
                     <option value="">
                         Select Trimester

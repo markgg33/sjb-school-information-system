@@ -39,6 +39,27 @@ function loadPage(page) {
       loadStudentCourses();
       loadStudents();
     }
+
+    // FOR FACULTY
+    if (page === "faculty") {
+      loadFacultyCourses();
+      loadFaculty();
+    }
+
+    // FOR ENROLLMENT
+
+    if (page === "enrollment") {
+      loadEnrollments();
+    }
+
+    if (page === "enrollment-create") {
+      loadEnrollmentCourses();
+      loadEnrollmentStudentsPage();
+    }
+
+    if (page === "enrollment-details") {
+      loadEnrollmentDetails();
+    }
   });
 }
 
