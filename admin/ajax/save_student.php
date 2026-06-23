@@ -164,12 +164,15 @@ WHERE id=?
         $user_id = $student->fetchColumn();
 
         $pdo->prepare("
-            UPDATE users
-            SET email = ?
-            WHERE id = ?
-        ")
+    UPDATE users
+    SET
+        email = ?,
+        status = ?
+    WHERE id = ?
+")
             ->execute([
                 $email,
+                $status,
                 $user_id
             ]);
     } else {
@@ -184,22 +187,23 @@ WHERE id=?
         );
 
         $stmt = $pdo->prepare("
-            INSERT INTO users
-            (
-                email,
-                password,
-                role,
-                status
-            )
-            VALUES
-            (
-                ?, ?, 'student', 'active'
-            )
-        ");
+    INSERT INTO users
+    (
+        email,
+        password,
+        role,
+        status
+    )
+    VALUES
+    (
+        ?, ?, 'student', ?
+    )
+");
 
         $stmt->execute([
             $email,
-            $password
+            $password,
+            $status
         ]);
 
         $user_id = $pdo->lastInsertId();

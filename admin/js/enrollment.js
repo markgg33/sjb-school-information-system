@@ -2,6 +2,66 @@
 // GLOBAL VARIABLES
 //=======================================
 let selectedEnrollmentStudent = null;
+let selectedEnrollmentId = null;
+let enrollmentEditMode = false;
+
+let enrolledSubjectIds = [];
+
+//=======================================
+// TOGGLE ENROLLMENT
+//=======================================
+
+function toggleEnrollmentMode() {
+  if (enrollmentEditMode) {
+    $("#leftPanelTitle").text("Currently Enrolled Subjects");
+
+    $("#curriculumSubjectsContainer").hide();
+
+    $("#currentEnrollmentSubjects").show();
+
+    //MAKE INPUT FIELDS IN EDIT READ ONLY
+    $("#schoolYear").prop("readonly", true);
+
+    $("#yearLevel").prop("disabled", true);
+
+    $("#trimester").prop("disabled", true);
+
+    $("#enrollmentPageTitle").html(`
+  <i class="fa-solid fa-pen-to-square me-2"></i>
+  Update Enrollment
+  <span class="badge bg-warning ms-2">
+    EDIT MODE
+  </span>
+`);
+
+    $("#saveEnrollmentBtn").html(`
+    <i class="fa-solid fa-floppy-disk me-2"></i>
+    Update Enrollment
+`);
+  } else {
+    $("#leftPanelTitle").text("Curriculum Subjects");
+
+    $("#currentEnrollmentSubjects").hide();
+
+    $("#curriculumSubjectsContainer").show();
+
+    $("#schoolYear").prop("readonly", false);
+
+    $("#yearLevel").prop("disabled", false);
+
+    $("#trimester").prop("disabled", false);
+
+    $("#enrollmentPageTitle").html(`
+  <i class="fa-solid fa-user-check me-2"></i>
+  New Enrollment
+`);
+
+    $("#saveEnrollmentBtn").html(`
+    <i class="fa-solid fa-floppy-disk me-2"></i>
+    Save Enrollment
+`);
+  }
+}
 
 //=======================================
 // LOAD ENROLLMENT COURSES
@@ -58,7 +118,7 @@ function loadCurriculumSubjects() {
 
       if (!subjects.length) {
         $("#curriculumSubjectsContainer").html(`
-          <div class="alert alert-warning mb-0">
+          <div class="alert alert-warning mb-0 text-center">
 
             No curriculum subjects found.
 
@@ -80,7 +140,11 @@ function loadCurriculumSubjects() {
       name="subject_ids[]"
       value="${subject.id}"
       data-units="${subject.units}"
-      checked>
+      ${
+        enrollmentEditMode && enrolledSubjectIds.includes(subject.id.toString())
+          ? "checked"
+          : "checked"
+      }>
 
     <label class="form-check-label">
 
@@ -165,6 +229,10 @@ function updateTotalUnits() {
     total += Number($(this).data("units"));
   });
 
+  $(".manualSubject").each(function () {
+    total += Number($(this).data("units"));
+  });
+
   $("#totalUnitsDisplay").text(total);
 }
 
@@ -173,7 +241,23 @@ function updateTotalUnits() {
 //=======================================
 
 function updateManualSubjectCount() {
-  $("#manualSubjectCount").text($(".manualSubject").length);
+  const count = $(".manualSubject").length;
+
+  $("#manualSubjectCount").text(count);
+
+  const placeholder = `
+    <div class="emptyManualPlaceholder text-muted small">
+      No additional subjects selected.
+    </div>
+  `;
+
+  if (count === 0) {
+    if ($("#manualSubjectsContainer .emptyManualPlaceholder").length === 0) {
+      $("#manualSubjectsContainer").html(placeholder);
+    }
+  } else {
+    $("#manualSubjectsContainer .emptyManualPlaceholder").remove();
+  }
 }
 
 //=======================================
@@ -190,6 +274,10 @@ $(document).on("click", ".selectEnrollmentStudentBtn", function () {
 //=======================================
 
 $(document).on("click", "#btnAddEnrollment", function () {
+  enrollmentEditMode = false;
+  selectedEnrollmentId = null;
+  selectedEnrollmentStudent = null;
+
   loadPage("enrollment-create");
 });
 
@@ -274,7 +362,13 @@ function loadEnrollmentStudentsPage(page = 1) {
           <tr>
 
             <td>
-              ${student.student_number ?? "-"}
+              ${
+                student.student_number
+                  ? student.student_number
+                  : `<span class="badge bg-warning text-uppercase">
+            Not Assigned
+         </span>`
+              }
             </td>
 
             <td>
@@ -321,6 +415,14 @@ function loadEnrollmentStudentsPage(page = 1) {
 //=======================================
 
 function loadEnrollmentDetails() {
+  //TOGGLE ENROLLMENT MODE
+  toggleEnrollmentMode();
+
+  if (enrollmentEditMode) {
+    loadEnrollmentEdit();
+    return;
+  }
+
   if (!selectedEnrollmentStudent) {
     loadPage("enrollment-create");
     return;
@@ -397,6 +499,169 @@ function loadEnrollmentDetails() {
 }
 
 //=======================================
+// LOAD ENROLLMENT FOR EDITING
+//=======================================
+
+function loadEnrollmentEdit() {
+  Loader.show("Loading enrollment...");
+
+  $.getJSON(
+    "ajax/get_enrollment_edit.php",
+    {
+      id: selectedEnrollmentId,
+    },
+    function (response) {
+      const e = response.enrollment;
+
+      enrolledSubjectIds = response.subjects.map((id) => id.toString());
+
+      $("#enrollmentId").val(e.id);
+
+      $("#selectedStudentId").val(e.student_id);
+
+      $("#schoolYear").val(e.school_year);
+
+      $("#yearLevel").val(e.year_level);
+
+      $("#trimester").val(e.trimester);
+
+      $("#selectedStudentInfo").html(`
+        <div class="row">
+
+          <div class="col-md-4">
+            <strong>Student No.</strong><br>
+            ${e.student_number}
+          </div>
+
+          <div class="col-md-4">
+            <strong>Name</strong><br>
+            ${e.last_name}, ${e.first_name}
+          </div>
+
+          <div class="col-md-4">
+            <strong>Course</strong><br>
+            ${e.course_name}
+          </div>
+
+        </div>
+      `);
+
+      loadAdditionalSubjects();
+      loadEnrollmentSubjects();
+    },
+  ).always(function () {
+    Loader.hide();
+  });
+}
+
+//=======================================
+// LOAD ENROLLMENT SUBJECTS
+//=======================================
+
+function loadEnrollmentSubjects() {
+  $.getJSON(
+    "ajax/get_enrollment_subjects.php",
+    {
+      enrollment_id: selectedEnrollmentId,
+    },
+
+    function (subjects) {
+      let html = "";
+
+      if (!subjects.length) {
+        $("#currentEnrollmentSubjects").html(`
+          <div class="text-muted">
+            No subjects found.
+          </div>
+        `);
+
+        return;
+      }
+
+      let totalUnits = 0;
+
+      subjects.forEach((subject) => {
+        totalUnits += Number(subject.units);
+
+        html += `
+        <div
+            class="card border-success shadow-sm mb-2 enrolledSubjectRow">
+
+            <input
+                type="hidden"
+                class="enrolledSubject"
+                name="subject_ids[]"
+                value="${subject.subject_id}"
+                data-units="${subject.units}">
+
+            <div
+                class="card-body py-2 px-3 d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <strong>
+                        ${subject.subject_code}
+                    </strong>
+
+                    <div class="small text-muted">
+                        ${subject.subject_name}
+                    </div>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline-danger removeEnrolledSubjectBtn">
+
+                    <i class="fa-solid fa-trash"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+    `;
+      });
+
+      html += `
+    <hr>
+
+    <div class="fw-bold">
+
+        Total Units:
+        <span id="editTotalUnitsDisplay">
+
+            ${totalUnits}
+
+        </span>
+
+    </div>
+`;
+
+      $("#currentEnrollmentSubjects").html(html);
+    },
+  );
+}
+
+//=======================================
+// REMOVE CURRENT ENROLLED SUBJECT
+//=======================================
+
+$(document).on("click", ".removeEnrolledSubjectBtn", function () {
+  const row = $(this).closest(".enrolledSubjectRow");
+
+  AlertService.confirm(
+    "Remove Subject",
+    "Remove this subject from the enrollment?",
+  ).then((result) => {
+    if (!result.isConfirmed) return;
+
+    row.remove();
+    updateEditTotalUnits();
+  });
+});
+
+//=======================================
 // PAGINATION
 //=======================================
 function renderEnrollmentPagination(currentPage, totalPages) {
@@ -435,11 +700,14 @@ function loadEnrollments(page = 1) {
     "ajax/get_enrollments.php",
     {
       page: page,
+      search: $("#enrollmentSearch").val(),
+      course_id: $("#enrollmentCourseFilter").val(),
+      status: $("#enrollmentStatusFilter").val(),
     },
     function (response) {
       let html = "";
 
-      if (!response.enrollments.length) {
+      if (!response.students.length) {
         html = `
           <tr>
             <td colspan="7" class="text-center py-5">
@@ -467,61 +735,58 @@ function loadEnrollments(page = 1) {
         return;
       }
 
-      response.enrollments.forEach((e) => {
+      response.students.forEach((s) => {
         const trimesterText =
-          e.trimester == 1
+          s.trimester == 1
             ? "1st Trimester"
-            : e.trimester == 2
+            : s.trimester == 2
               ? "2nd Trimester"
               : "3rd Trimester";
 
         html += `
-          <tr>
+<tr>
 
-            <td>${e.student_number ?? "-"}</td>
+    <td>
+        ${
+          s.student_number
+            ? s.student_number
+            : `<span class="badge bg-warning text-uppercase">
+            Not Assigned
+         </span>`
+        }
+    </td>
 
-            <td>
-              ${e.last_name},
-              ${e.first_name}
-            </td>
+    <td>
+        ${s.last_name},
+        ${s.first_name}
+    </td>
 
-            <td>
-              ${e.course_code} - ${e.course_name}
-            </td>
+    <td>
+        ${s.course_code} - ${s.course_name}
+    </td>
 
-            <td>
-              ${e.year_level}
-            </td>
+    <td>
+        ${s.enrollment_count}
+    </td>
 
-            <td>
-              ${trimesterText}
-            </td>
+    <td>
+        ${s.latest_enrollment ? s.latest_enrollment : "-"}
+    </td>
 
-            <td>
-              ${e.school_year}
-            </td>
-
-            <td>
-              <span class="badge bg-success">
-                ${e.status}
-              </span>
-            </td>
-
-            <td>
+    <td>
 
         <button
-            class="btn btn-sm btn-outline-primary viewEnrollmentBtn"
-            data-id="${e.id}">
+            class="btn btn-sm btn-outline-primary viewEnrollmentHistoryBtn"
+            data-id="${s.id}">
 
-            <i class="fa-solid fa-eye"></i>
+            <i class="fa-solid fa-clock-rotate-left"></i>
 
         </button>
 
     </td>
 
-
-          </tr>
-        `;
+</tr>
+`;
       });
 
       $("#enrollmentTableBody").html(html);
@@ -538,16 +803,31 @@ function loadEnrollments(page = 1) {
 //=======================================
 
 $(document).on("click", "#saveEnrollmentBtn", function () {
+  const title = enrollmentEditMode ? "Update Enrollment" : "Save Enrollment";
+
+  let subjectCount;
+
+  if (enrollmentEditMode) {
+    subjectCount = $(".enrolledSubject").length + $(".manualSubject").length;
+  } else {
+    subjectCount =
+      $(".enrollmentSubject:checked").length + $(".manualSubject").length;
+  }
+
   AlertService.confirm(
-    "Save Enrollment",
-    "Do you want to save this enrollment?",
+    title,
+    `You are about to save ${subjectCount} subject(s). Continue?`,
   ).then((result) => {
     if (!result.isConfirmed) return;
 
     Loader.show("Saving enrollment...");
 
+    const saveUrl = enrollmentEditMode
+      ? "ajax/update_enrollment_subjects.php"
+      : "ajax/save_enrollment.php";
+
     $.ajax({
-      url: "ajax/save_enrollment.php",
+      url: saveUrl,
 
       type: "POST",
 
@@ -560,6 +840,8 @@ $(document).on("click", "#saveEnrollmentBtn", function () {
           Notification.success(response.message);
 
           selectedEnrollmentStudent = null;
+          selectedEnrollmentId = null;
+          enrollmentEditMode = false;
 
           loadPage("enrollment");
         } else {
@@ -579,11 +861,95 @@ $(document).on("click", "#saveEnrollmentBtn", function () {
 });
 
 //=======================================
+// DELETE ENROLLMENT
+//=======================================
+
+$(document).on("click", ".deleteEnrollmentBtn", function () {
+  const enrollmentId = $(this).data("id");
+
+  AlertService.confirm(
+    "Delete Enrollment",
+    `
+    This will permanently delete:
+
+    • Enrollment record
+    • All enrolled subjects
+
+    This action cannot be undone.
+    `,
+  ).then((result) => {
+    if (!result.isConfirmed) return;
+
+    Loader.show("Deleting enrollment...");
+
+    $.ajax({
+      url: "ajax/delete_enrollment.php",
+
+      type: "POST",
+
+      data: {
+        enrollment_id: enrollmentId,
+      },
+
+      dataType: "json",
+
+      success: function (response) {
+        if (!response.success) {
+          AlertService.error(response.message);
+          return;
+        }
+
+        Notification.success(response.message);
+
+        loadEnrollments();
+
+        const historyModal = bootstrap.Modal.getInstance(
+          document.getElementById("enrollmentHistoryModal"),
+        );
+
+        if (historyModal) {
+          historyModal.hide();
+        }
+
+        $(".modal-backdrop").remove();
+        $("body").removeClass("modal-open");
+        $("body").css("padding-right", "");
+      },
+
+      error: function () {
+        AlertService.error("Unable to delete enrollment.");
+      },
+
+      complete: function () {
+        Loader.hide();
+      },
+    });
+  });
+});
+
+//=======================================
 // VIEW ENROLLMENT
 //=======================================
 
 $(document).on("click", ".viewEnrollmentBtn", function () {
   const id = $(this).data("id");
+
+  const btn = $(this);
+
+  if (btn.data("loading")) {
+    return;
+  }
+
+  btn.data("loading", true);
+
+  // CLOSE HISTORY MODAL FIRST
+  const historyModal = bootstrap.Modal.getInstance(
+    document.getElementById("enrollmentHistoryModal"),
+  );
+
+  if (historyModal) {
+    historyModal.hide();
+  }
 
   Loader.show("Loading enrollment...");
 
@@ -692,13 +1058,150 @@ $(document).on("click", ".viewEnrollmentBtn", function () {
         </div>
       `);
 
-      new bootstrap.Modal(
-        document.getElementById("viewEnrollmentModal"),
-      ).show();
+      const historyModalEl = document.getElementById("enrollmentHistoryModal");
+
+      if ($(historyModalEl).hasClass("show")) {
+        $(historyModalEl).one("hidden.bs.modal", function () {
+          new bootstrap.Modal(
+            document.getElementById("viewEnrollmentModal"),
+          ).show();
+        });
+      } else {
+        new bootstrap.Modal(
+          document.getElementById("viewEnrollmentModal"),
+        ).show();
+      }
     },
   ).always(function () {
+    btn.data("loading", false);
     Loader.hide();
   });
+});
+
+//=======================================
+// VIEW ENROLLMENT HISTORY
+//=======================================
+
+$(document).on("click", ".viewEnrollmentHistoryBtn", function () {
+  selectedEnrollmentStudent = $(this).data("id");
+
+  const studentId = $(this).data("id");
+
+  Loader.show("Loading history...");
+
+  $.getJSON(
+    "ajax/get_student_enrollment_history.php",
+    {
+      student_id: studentId,
+    },
+
+    function (rows) {
+      // FALLBACK FOR ENROLLMENT HISTORY
+      if (!rows.length) {
+        $("#enrollmentHistoryContent").html(`
+    <div class="text-center py-5">
+
+      <i class="fa-solid fa-user-graduate fa-3x text-muted mb-3"></i>
+
+      <h6>No Enrollment History Found</h6>
+
+      <p class="text-muted mb-0">
+        This student does not have any enrollment records yet.
+      </p>
+
+    </div>
+  `);
+
+        new bootstrap.Modal(
+          document.getElementById("enrollmentHistoryModal"),
+        ).show();
+
+        return;
+      }
+
+      let html = `
+            <table class="table">
+
+                <thead>
+                    <tr>
+                        <th>School Year</th>
+                        <th>Year Level</th>
+                        <th>Trimester</th>
+                        <th>Status</th>
+                        <th width="140">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+        `;
+
+      rows.forEach((e) => {
+        html += `
+            <tr>
+
+    <td>${e.school_year}</td>
+
+    <td>${e.year_level}</td>
+
+    <td>
+        ${
+          e.trimester == 1
+            ? "1st Trimester"
+            : e.trimester == 2
+              ? "2nd Trimester"
+              : "3rd Trimester"
+        }
+    </td>
+
+    <td>${e.status}</td>
+
+<td>
+
+    <button
+        class="btn btn-sm btn-outline-primary viewEnrollmentBtn"
+        data-id="${e.id}"
+        title="View Subjects">
+
+        <i class="fa-solid fa-eye"></i>
+
+    </button>
+
+    <button
+        class="btn btn-sm btn-outline-success editEnrollmentBtn"
+        data-id="${e.id}"
+        title="Edit">
+
+        <i class="fa-solid fa-pen"></i>
+
+    </button>
+
+    <button
+        class="btn btn-sm btn-outline-danger deleteEnrollmentBtn"
+        data-id="${e.id}"
+        title="Delete">
+
+        <i class="fa-solid fa-trash"></i>
+
+    </button>
+
+</td>
+
+</tr>
+`;
+      });
+
+      html += `
+                </tbody>
+            </table>
+        `;
+
+      $("#enrollmentHistoryContent").html(html);
+
+      new bootstrap.Modal(
+        document.getElementById("enrollmentHistoryModal"),
+      ).show();
+    },
+  ).always(() => Loader.hide());
 });
 
 //=======================================
@@ -716,12 +1219,22 @@ $(document).on("keypress", "#additionalSubjectSearch", function (e) {
   }
 });
 
+$(document).on("keypress", "#enrollmentSearch", function (e) {
+  if (e.which === 13) {
+    loadEnrollments();
+  }
+});
+
 //=======================================
 // SEARCH STUDENTS
 //=======================================
 
 $(document).on("click", "#searchEnrollmentStudentsBtn", function () {
   loadEnrollmentStudentsPage();
+});
+
+$(document).on("click", "#searchEnrollmentBtn", function () {
+  loadEnrollments();
 });
 
 //=======================================
@@ -840,9 +1353,16 @@ function loadAdditionalSubjects() {
 $(document).on("click", ".addManualSubjectBtn", function () {
   const id = $(this).data("id");
 
-  if ($(`.manualSubject[value="${id}"]`).length) {
+  if (
+    $(`.manualSubject[value="${id}"]`).length ||
+    $(`.enrolledSubject[value="${id}"]`).length
+  ) {
+    AlertService.warning("Subject already exists in the enrollment.");
+
     return;
   }
+
+  $("#manualSubjectsContainer .emptyManualPlaceholder").remove();
 
   $("#manualSubjectsContainer").append(`
   <div
@@ -857,7 +1377,8 @@ $(document).on("click", ".addManualSubjectBtn", function () {
                   type="hidden"
                   class="manualSubject"
                   name="manual_subject_ids[]"
-                  value="${id}">
+                  value="${id}"
+                  data-units="${$(this).data("units")}">
 
               <strong>
 
@@ -887,6 +1408,12 @@ $(document).on("click", ".addManualSubjectBtn", function () {
 `);
 
   updateManualSubjectCount();
+
+  if (enrollmentEditMode) {
+    updateEditTotalUnits();
+  } else {
+    updateTotalUnits();
+  }
 });
 
 //=======================================
@@ -897,4 +1424,54 @@ $(document).on("click", ".removeManualSubjectBtn", function () {
   $(this).closest(".manualSubjectRow").remove();
 
   updateManualSubjectCount();
+
+  if (enrollmentEditMode) {
+    updateEditTotalUnits();
+  } else {
+    updateTotalUnits();
+  }
 });
+
+//=======================================
+// EDIT ENROLLMENT BUTTON
+//=======================================
+
+$(document).on("click", ".editEnrollmentBtn", function () {
+  selectedEnrollmentId = $(this).data("id");
+
+  enrollmentEditMode = true;
+
+  const modal = bootstrap.Modal.getInstance(
+    document.getElementById("enrollmentHistoryModal"),
+  );
+
+  if (modal) {
+    modal.hide();
+  }
+
+  $(".modal-backdrop").remove();
+  $("body").removeClass("modal-open");
+  $("body").css("padding-right", "");
+
+  setTimeout(() => {
+    loadPage("enrollment-details");
+  }, 300);
+});
+
+//=======================================
+// HELPERS
+//=======================================
+
+function updateEditTotalUnits() {
+  let total = 0;
+
+  $(".enrolledSubject").each(function () {
+    total += Number($(this).data("units"));
+  });
+
+  $(".manualSubject").each(function () {
+    total += Number($(this).data("units"));
+  });
+
+  $("#editTotalUnitsDisplay").text(total);
+}

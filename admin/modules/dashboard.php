@@ -28,7 +28,7 @@
 
                 <h6>Students</h6>
 
-                <h2>0</h2>
+                <h2 id="totalStudents">0</h2>
 
             </div>
 
@@ -44,7 +44,7 @@
 
                 <h6>Faculty</h6>
 
-                <h2>0</h2>
+                <h2 id="totalFaculty">0</h2>
 
             </div>
 
@@ -60,7 +60,7 @@
 
                 <h6>Courses</h6>
 
-                <h2>0</h2>
+                <h2 id="totalCourses">0</h2>
 
             </div>
 
@@ -76,7 +76,7 @@
 
                 <h6>Subjects</h6>
 
-                <h2>0</h2>
+                <h2 id="totalSubjects">0</h2>
 
             </div>
 
@@ -98,7 +98,9 @@
 
                 <div class="quick-actions">
 
-                    <div class="action-card">
+                    <div
+                        class="action-card dashboardAction"
+                        data-page="students">
 
                         <i class="fa-solid fa-user-plus"></i>
 
@@ -109,7 +111,9 @@
 
                     </div>
 
-                    <div class="action-card">
+                    <div
+                        class="action-card dashboardAction"
+                        data-page="courses">
 
                         <i class="fa-solid fa-book-medical"></i>
 
@@ -120,7 +124,9 @@
 
                     </div>
 
-                    <div class="action-card">
+                    <div
+                        class="action-card dashboardAction"
+                        data-page="subjects">
 
                         <i class="fa-solid fa-book-open-reader"></i>
 
@@ -145,9 +151,13 @@
                     Recent Activity
                 </h5>
 
-                <p class="text-muted">
-                    No recent activity.
-                </p>
+                <div id="recentEnrollments">
+
+                    <div class="text-muted">
+                        Loading...
+                    </div>
+
+                </div>
 
             </div>
 

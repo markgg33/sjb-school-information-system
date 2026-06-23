@@ -12,7 +12,7 @@ $search    = trim($_GET['search'] ?? '');
 
 $page = max(1, intval($_GET['page'] ?? 1));
 
-$limit = 15;
+$limit = 10;
 $offset = ($page - 1) * $limit;
 
 //=======================================

@@ -18,6 +18,11 @@ $(document).ready(function () {
 
 function loadPage(page) {
   $("#content-area").load("modules/" + page + ".php", function () {
+    //FOR DASHBOARD
+    if (page === "dashboard") {
+      loadDashboardStats();
+      loadRecentEnrollments();
+    }
     //FOR COURSES
     if (page === "courses") {
       loadCourses();
@@ -47,8 +52,8 @@ function loadPage(page) {
     }
 
     // FOR ENROLLMENT
-
     if (page === "enrollment") {
+      loadEnrollmentCourses();
       loadEnrollments();
     }
 
@@ -60,6 +65,56 @@ function loadPage(page) {
     if (page === "enrollment-details") {
       loadEnrollmentDetails();
     }
+  });
+}
+
+//=======================================
+// LOAD STATS
+//=======================================
+
+function loadDashboardStats() {
+  $.getJSON("ajax/get_dashboard_stats.php", function (response) {
+    $("#totalStudents").text(response.students);
+    $("#totalFaculty").text(response.faculty);
+    $("#totalCourses").text(response.courses);
+    $("#totalSubjects").text(response.subjects);
+  });
+}
+
+function loadRecentEnrollments() {
+  $.getJSON("ajax/get_recent_enrollments.php", function (rows) {
+    let html = "";
+
+    if (!rows.length) {
+      html = `
+          <div class="text-muted">
+            No recent activity.
+          </div>
+        `;
+    }
+
+    rows.forEach((r) => {
+      html += `
+          <div class="border-bottom py-2">
+
+            <strong>
+              ${r.last_name},
+              ${r.first_name}
+            </strong>
+
+            <div class="small text-muted">
+
+              Year ${r.year_level}
+              • Trimester ${r.trimester}
+              • ${r.school_year}
+
+            </div>
+
+          </div>
+        `;
+    });
+
+    $("#recentEnrollments").html(html);
   });
 }
 
@@ -93,4 +148,11 @@ $(document).on("click", "#logoutBtn", function (e) {
       }
     },
   );
+});
+
+//=======================================
+// QUICK ACTION
+//=======================================
+$(document).on("click", ".dashboardAction", function () {
+  loadPage($(this).data("page"));
 });

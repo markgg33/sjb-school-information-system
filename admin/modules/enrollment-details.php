@@ -40,11 +40,13 @@
 
 <div class="dashboard-card">
 
-    <h4 class="mb-0">
+    <h4
+        class="mb-3"
+        id="enrollmentPageTitle">
 
         <i class="fa-solid fa-user-check me-2 mb-3"></i>
 
-        Enrollment Details
+        New Enrollment
 
     </h4>
 
@@ -60,6 +62,11 @@
             type="hidden"
             id="selectedStudentId"
             name="student_id">
+
+        <input
+            type="hidden"
+            id="enrollmentId"
+            name="enrollment_id">
 
         <div class="row g-3">
 
@@ -137,12 +144,15 @@
 
                 <div class="dashboard-card h-100">
 
-                    <h6 class="mb-3">
+                    <h6
+                        class="mb-3"
+                        id="leftPanelTitle">
+
                         Curriculum Subjects
+
                     </h6>
 
-                    <div
-                        id="curriculumSubjectsContainer">
+                    <div id="curriculumSubjectsContainer">
 
                         <div class="text-muted">
 
@@ -153,11 +163,18 @@
 
                     </div>
 
+                    <div
+                        id="currentEnrollmentSubjects"
+                        style="display:none;">
+                    </div>
+
                 </div>
 
             </div>
 
-            <div class="col-lg-7">
+            <div
+                class="col-lg-7"
+                id="additionalSubjectsPanel">
 
                 <div class="dashboard-card">
 
@@ -224,11 +241,11 @@
                                 class="border rounded p-2"
                                 style="height:400px; overflow-y:auto;">
 
-                                <div class="text-muted small">
+                                <!--div class="text-muted small">
 
                                     No additional subjects selected.
 
-                                </div>
+                                </div-->
 
                             </div>
 

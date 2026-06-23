@@ -30,6 +30,80 @@
 
 <div class="dashboard-card">
 
+    <div class="row g-3 mb-3">
+
+        <div class="col-md-4">
+
+            <input
+                type="text"
+                id="enrollmentSearch"
+                class="form-control modern-input"
+                placeholder="Search student...">
+
+        </div>
+
+        <div class="col-md-3">
+
+            <select
+                id="enrollmentCourseFilter"
+                class="form-select modern-input">
+
+                <option value="">
+                    All Courses
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-2">
+
+            <select
+                id="enrollmentStatusFilter"
+                class="form-select modern-input">
+
+                <option value="">
+                    All Status
+                </option>
+
+                <option value="active">
+                    Active
+                </option>
+
+                <option value="inactive">
+                    Inactive
+                </option>
+
+                <option value="graduated">
+                    Graduated
+                </option>
+
+                <option value="dropped">
+                    Dropped
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-1">
+
+            <button
+                class="module-subject-btn w-100 justify-content-center"
+                id="searchEnrollmentBtn">
+
+                <div class="btn-icon">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <hr>
+
     <div class="table-responsive">
 
         <table class="table align-middle">
@@ -41,10 +115,8 @@
                     <th>Student No.</th>
                     <th>Name</th>
                     <th>Course</th>
-                    <th>Year Level</th>
-                    <th>Trimester</th>
-                    <th>School Year</th>
-                    <th>Status</th>
+                    <th>Enrollments</th>
+                    <th>Latest Record</th>
                     <th width="120">Actions</th>
 
                 </tr>
@@ -98,6 +170,47 @@
                     Loading...
 
                 </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- HISTORY ENROLLMENT MODAL -->
+
+<div
+    class="modal fade"
+    id="enrollmentHistoryModal"
+    tabindex="-1">
+
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    Enrollment History
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div
+                class="modal-body"
+                id="enrollmentHistoryContent">
+
+                Loading...
 
             </div>
 
