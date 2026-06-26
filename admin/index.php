@@ -185,14 +185,32 @@ if ($_SESSION['role'] !== 'admin') {
 
                 <div class="topbar-user">
 
-                    <div>
+                    <div
+                        class="user-profile"
+                        id="openProfile">
 
-                        <small>
-                            Logged in as
-                        </small>
+                        <img
+                            src="<?=
+                                    !empty($_SESSION['photo'])
+                                        ? '../uploads/profile/' . htmlspecialchars($_SESSION['photo'])
+                                        : '../uploads/profile/default.png'
+                                    ?>"
+                            class="topbar-avatar">
 
                         <div>
-                            <?= htmlspecialchars($_SESSION['email']) ?>
+
+                            <div class="fw-semibold">
+
+                                <?= htmlspecialchars($_SESSION['display_name'] ?? $_SESSION['email']) ?>
+
+                            </div>
+
+                            <small class="text-muted">
+
+                                <?= ucfirst($_SESSION['role'] ?? '') ?>
+
+                            </small>
+
                         </div>
 
                     </div>

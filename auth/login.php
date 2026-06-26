@@ -33,14 +33,107 @@ if (!$user) {
     exit;
 }
 
+//=======================================
+// PASSWORD VERIFICATION
+//=======================================
+
 if (!password_verify($password, $user['password'])) {
     header("Location: ../index.php?error=invalid_credentials");
     exit;
 }
 
+//======================================
+// LOAD DISPLAY INFORMATION
+//======================================
+
+$displayName = $user['email'];
+$photo = $user['photo'] ?? null;
+
+switch ($user['role']) {
+
+    case 'student':
+
+        $stmt = $pdo->prepare("
+            SELECT
+                first_name,
+                middle_name,
+                last_name
+            FROM students
+            WHERE user_id = ?
+            LIMIT 1
+        ");
+
+        $stmt->execute([$user['id']]);
+
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+            $displayName =
+                trim(
+                    $row['first_name'] . ' ' .
+                        ($row['middle_name']
+                            ? $row['middle_name'] . ' '
+                            : '') .
+                        $row['last_name']
+                );
+        }
+
+        break;
+
+    case 'faculty':
+
+        $stmt = $pdo->prepare("
+            SELECT
+                first_name,
+                middle_name,
+                last_name
+            FROM faculty
+            WHERE user_id = ?
+            LIMIT 1
+        ");
+
+        $stmt->execute([$user['id']]);
+
+        if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+
+            $displayName =
+                trim(
+                    $row['first_name'] . ' ' .
+                        ($row['middle_name']
+                            ? $row['middle_name'] . ' '
+                            : '') .
+                        $row['last_name']
+                );
+        }
+
+        break;
+
+    case 'admin':
+
+        if (!empty($user['first_name'])) {
+
+            $displayName =
+                trim(
+                    $user['last_name']
+                        . ' ' .
+                        ($user['middle_name']
+                            ? $user['middle_name'] . ' '
+                            : '') .
+                        $user['first_name']
+                );
+        }
+
+        break;
+}
+
 $_SESSION['user_id'] = $user['id'];
-$_SESSION['email']   = $user['email'];
-$_SESSION['role']    = $user['role'];
+
+$_SESSION['email'] = $user['email'];
+
+$_SESSION['role'] = $user['role'];
+
+$_SESSION['display_name'] = $displayName;
+
+$_SESSION['photo'] = $photo;
 
 switch ($user['role']) {
 

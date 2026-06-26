@@ -783,6 +783,63 @@
 }
 
 /* =======================================================
+   PROFILE NEW
+======================================================= */
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-profile {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.user-profile:hover {
+  opacity: 0.8;
+}
+
+.topbar-avatar {
+  width: 46px;
+
+  height: 46px;
+
+  border-radius: 50%;
+
+  object-fit: cover;
+
+  border: 3px solid var(--sjb-accent);
+}
+
+.user-profile small {
+  display: block;
+
+  margin-top: -2px;
+}
+
+.input-group .btn {
+  border-color: #ced4da;
+  background: #fff;
+}
+
+.input-group .btn:hover {
+  background: #f8f9fa;
+}
+
+.input-group .btn i {
+  width: 18px;
+  color: #6c757d;
+}
+
+/* =======================================================
    MEDIA QUERIES
 ======================================================= */
 

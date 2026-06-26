@@ -1,0 +1,31 @@
+<div class="container-fluid">
+
+    <div class="welcome-banner mb-4">
+
+        <h2>
+            My Grades
+        </h2>
+
+        <p>
+            View your grades by enrollment period.
+        </p>
+
+    </div>
+
+    <div id="gradesContainer">
+
+        <div class="text-center py-5">
+
+            <div class="spinner-border text-primary"></div>
+
+            <div class="mt-3">
+
+                Loading grades...
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

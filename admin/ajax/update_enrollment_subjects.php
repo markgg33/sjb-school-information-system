@@ -79,11 +79,45 @@ try {
     )
 ");
 
+    $gradeStmt = $pdo->prepare("
+    INSERT INTO grades
+    (
+        enrollment_subject_id
+    )
+    VALUES
+    (
+        ?
+    )
+");
+
     foreach ($to_add as $subject_id) {
 
         $insertStmt->execute([
             $enrollment_id,
             $subject_id
+        ]);
+
+        $enrollment_subject_id =
+            $pdo->lastInsertId();
+
+        $pdo->prepare("
+INSERT INTO grades
+(
+    enrollment_subject_id
+)
+VALUES
+(
+    ?
+)
+")->execute([
+            $enrollment_subject_id
+        ]);
+
+        $enrollment_subject_id =
+            $pdo->lastInsertId();
+
+        $gradeStmt->execute([
+            $enrollment_subject_id
         ]);
     }
 
