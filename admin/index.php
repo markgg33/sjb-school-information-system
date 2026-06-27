@@ -65,7 +65,7 @@ if ($_SESSION['role'] !== 'admin') {
                         <h5>SJB ICAS</h5>
 
                         <small>
-                            Student Information System
+                            Admin Portal
                         </small>
 
                     </div>
@@ -145,9 +145,9 @@ if ($_SESSION['role'] !== 'admin') {
                         System
                     </li>
 
-                    <li data-page="settings">
-                        <i class="fa-solid fa-gear"></i>
-                        Settings
+                    <li data-page="profile-settings">
+                        <i class="fa-solid fa-user-gear"></i>
+                        Profile Settings
                     </li>
 
                 </ul>
@@ -190,6 +190,7 @@ if ($_SESSION['role'] !== 'admin') {
                         id="openProfile">
 
                         <img
+                            id="topbarProfilePhoto"
                             src="<?=
                                     !empty($_SESSION['photo'])
                                         ? '../uploads/profile/' . htmlspecialchars($_SESSION['photo'])
@@ -199,7 +200,9 @@ if ($_SESSION['role'] !== 'admin') {
 
                         <div>
 
-                            <div class="fw-semibold">
+                            <div
+                                id="topbarDisplayName"
+                                class="fw-semibold">
 
                                 <?= htmlspecialchars($_SESSION['display_name'] ?? $_SESSION['email']) ?>
 
@@ -253,6 +256,7 @@ if ($_SESSION['role'] !== 'admin') {
 
 
     <script src="../js/alertService.js"></script>
+    <script src="../js/login.js"></script>
     <script src="js/courses.js"></script>
     <script src="js/admin.js"></script>
     <script src="js/curriculum.js"></script>
@@ -260,6 +264,7 @@ if ($_SESSION['role'] !== 'admin') {
     <script src="js/subjects.js"></script>
     <script src="js/faculty.js"></script>
     <script src="js/enrollment.js"></script>
+    <script src="js/profile.js"></script>
 
 
 </body>

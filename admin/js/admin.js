@@ -51,6 +51,11 @@ function loadPage(page) {
       loadFaculty();
     }
 
+    // FOR PROFILE SETTINGS
+    if (page === "profile-settings") {
+      loadProfile();
+    }
+
     // FOR ENROLLMENT
     if (page === "enrollment") {
       loadEnrollmentCourses();

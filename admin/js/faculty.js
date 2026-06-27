@@ -1,4 +1,67 @@
 //=======================================
+// SUBJECT ASSIGNMENT
+//=======================================
+
+let selectedFacultySubjects = [];
+let facultySubjectSelectionsCache = {};
+
+function getAssignmentContextKey() {
+  const facultyId = $("#assignmentFacultyId").val();
+  const schoolYear = $("#assignmentSchoolYear").val();
+  const trimester = $("#assignmentTrimester").val();
+  const course = $("#assignmentCourse").val();
+  const year = $("#assignmentYearLevel").val();
+
+  if (!facultyId || !schoolYear || !trimester || !course || !year) {
+    return null;
+  }
+
+  return `${facultyId}|${schoolYear}|${trimester}|${course}|${year}`;
+}
+
+function saveCurrentFacultySelections() {
+  const key = getAssignmentContextKey();
+
+  if (!key) {
+    return;
+  }
+
+  facultySubjectSelectionsCache[key] = [...selectedFacultySubjects];
+}
+
+function getPendingFacultyAssignments() {
+  saveCurrentFacultySelections();
+
+  const facultyId = $("#assignmentFacultyId").val();
+  const schoolYear = $("#assignmentSchoolYear").val();
+  const trimester = $("#assignmentTrimester").val();
+  const prefix = `${facultyId}|${schoolYear}|${trimester}|`;
+  const assignments = [];
+
+  Object.keys(facultySubjectSelectionsCache).forEach((key) => {
+    if (!key.startsWith(prefix)) {
+      return;
+    }
+
+    const [, , , courseId, yearLevel] = key.split("|");
+
+    assignments.push({
+      course_id: courseId,
+      year_level: yearLevel,
+      subjects: facultySubjectSelectionsCache[key],
+    });
+  });
+
+  return assignments;
+}
+
+function countPendingFacultySubjects(assignments) {
+  return assignments.reduce((total, assignment) => {
+    return total + (assignment.subjects?.length || 0);
+  }, 0);
+}
+
+//=======================================
 // LOAD COURSE CHECKBOXES
 //=======================================
 
@@ -126,7 +189,7 @@ function loadFaculty(page = 1) {
              <td>
   ${
     faculty.employee_number
-      ?  faculty.employee_number
+      ? faculty.employee_number
       : `<span class="badge bg-warning text-uppercase">
             Not Assigned
          </span>`
@@ -152,21 +215,30 @@ function loadFaculty(page = 1) {
 
             <td>
 
-              <button
-                class="btn btn-sm btn-outline-primary editFacultyBtn"
-                data-id="${faculty.id}">
+<button
+    class="btn btn-sm btn-outline-primary editFacultyBtn"
+    data-id="${faculty.id}">
 
-                <i class="fa-solid fa-pencil"></i>
+    <i class="fa-solid fa-pencil"></i>
 
-              </button>
+</button>
 
-              <button
-                class="btn btn-sm btn-outline-warning resetFacultyPasswordBtn"
-                data-id="${faculty.id}">
+<button
+    class="btn btn-sm btn-outline-success assignSubjectsBtn"
+    data-id="${faculty.id}"
+    data-name="${faculty.first_name} ${faculty.last_name}">
 
-                <i class="fa-solid fa-key"></i>
+    <i class="fa-solid fa-book-open-reader"></i>
 
-              </button>
+</button>
+
+<button
+    class="btn btn-sm btn-outline-warning resetFacultyPasswordBtn"
+    data-id="${faculty.id}">
+
+    <i class="fa-solid fa-key"></i>
+
+</button>
 
             </td>
 
@@ -369,3 +441,406 @@ $(document).on("click", ".resetFacultyPasswordBtn", function () {
     );
   });
 });
+
+//=======================================
+// CHECKBOX HANDLER
+//=======================================
+
+$(document).on("change", ".assignmentSubject", function () {
+  const id = $(this).val();
+
+  if ($(this).is(":checked")) {
+    if (!selectedFacultySubjects.includes(id)) {
+      selectedFacultySubjects.push(id);
+    }
+  } else {
+    selectedFacultySubjects = selectedFacultySubjects.filter(
+      (subjectId) => subjectId !== id,
+    );
+  }
+
+  saveCurrentFacultySelections();
+});
+
+//=======================================
+// LOAD ASSIGNMENT SCHOOL YEARS
+//=======================================
+
+function loadAssignmentSchoolYears() {
+  $.getJSON("ajax/get_assignment_school_years.php", function (rows) {
+    let html = "";
+
+    rows.forEach(function (year) {
+      html += `
+                    <option value="${year}">
+                        ${year}
+                    </option>
+                `;
+    });
+
+    $("#assignmentSchoolYear").html(html);
+
+    $("#assignmentSchoolYear").prop("selectedIndex", 0);
+  });
+}
+
+//=======================================
+// LOAD SUBJECTS FOR ASSIGNMENT
+//=======================================
+
+function loadAssignmentSubjects() {
+  const course = $("#assignmentCourse").val();
+  const year = $("#assignmentYearLevel").val();
+  const trimester = $("#assignmentTrimester").val();
+  const schoolYear = $("#assignmentSchoolYear").val();
+
+  if (!course || !year || !trimester || !schoolYear) {
+    $("#assignmentSubjectsContainer").html(`
+      <div class="text-center py-4 text-muted">
+        Select course, year level, and trimester first.
+      </div>
+    `);
+    return;
+  }
+
+  Loader.show("Loading subjects...");
+
+  $.when(
+    $.getJSON("ajax/get_assignable_subjects.php", {
+      course_id: course,
+      year_level: year,
+      trimester: trimester,
+    }),
+
+    $.getJSON("ajax/get_faculty_subjects.php", {
+      faculty_id: $("#assignmentFacultyId").val(),
+      school_year: schoolYear,
+      trimester: trimester,
+      course_id: course,
+      year_level: year,
+    }),
+  )
+    .done(function (subjectResponse, assignedResponse) {
+      const subjects = subjectResponse[0];
+      const assigned = assignedResponse[0].map((id) => id.toString());
+      const contextKey = getAssignmentContextKey();
+      const cached =
+        contextKey && contextKey in facultySubjectSelectionsCache
+          ? facultySubjectSelectionsCache[contextKey]
+          : null;
+
+      if (cached !== null) {
+        selectedFacultySubjects = cached.map((id) => id.toString());
+      } else if (selectedFacultySubjects.length === 0) {
+        selectedFacultySubjects = [...assigned];
+
+        if (contextKey) {
+          facultySubjectSelectionsCache[contextKey] = [...selectedFacultySubjects];
+        }
+      }
+
+      let html = "";
+
+      if (!subjects.length) {
+        html = `
+          <div class="text-center py-4 text-muted">
+            No subjects found in curriculum for this selection.
+          </div>
+        `;
+      } else {
+        subjects.forEach((subject) => {
+          const id = subject.id.toString();
+          const checked =
+            assigned.includes(id) || selectedFacultySubjects.includes(id)
+              ? "checked"
+              : "";
+
+          html += `
+<label class="assignment-card">
+
+<input
+type="checkbox"
+class="assignmentSubject form-check-input"
+value="${subject.id}"
+${checked}>
+
+<div class="flex-grow-1 ms-3">
+
+<div class="fw-semibold">
+${subject.subject_code}
+</div>
+
+<small class="text-muted">
+${subject.subject_name}
+</small>
+
+</div>
+
+<span class="badge bg-primary">
+${subject.units} Units
+</span>
+
+</label>
+`;
+        });
+      }
+
+      $("#assignmentSubjectsContainer").html(html);
+    })
+    .always(function () {
+      Loader.hide();
+    });
+}
+//=======================================
+// LOAD ASSIGNMENT COURSES
+//=======================================
+
+function loadAssignmentCourses() {
+  $.getJSON(
+    "ajax/get_courses_dropdown.php",
+
+    function (courses) {
+      let html = `
+                <option value="">
+                    Select Course
+                </option>
+            `;
+
+      courses.forEach((course) => {
+        html += `
+
+                    <option value="${course.id}">
+
+                        ${course.course_code}
+                        -
+                        ${course.course_name}
+
+                    </option>
+
+                `;
+      });
+
+      $("#assignmentCourse").html(html);
+    },
+  );
+}
+
+//=======================================
+// OPEN SUBJECT ASSIGNMENT
+//=======================================
+
+$(document).on("click", ".assignSubjectsBtn", function () {
+  selectedFacultySubjects = [];
+  facultySubjectSelectionsCache = {};
+
+  $("#assignmentFacultyId").val($(this).data("id"));
+  $("#assignmentFacultyName").val($(this).data("name"));
+  $("#assignmentTrimester").val("1");
+  $("#assignmentYearLevel").val("1");
+
+  const $modal = $("#subjectAssignmentModal").appendTo("body");
+  const modal = bootstrap.Modal.getOrCreateInstance($modal[0]);
+
+  Loader.show("Loading assignment...");
+
+  $.when(
+    $.getJSON("ajax/get_assignment_school_years.php"),
+    $.getJSON("ajax/get_courses_dropdown.php"),
+  )
+    .done(function (yearsResponse, coursesResponse) {
+      const years = yearsResponse[0];
+      const courses = coursesResponse[0];
+
+      let yearsHtml = "";
+      years.forEach((year) => {
+        yearsHtml += `<option value="${year}">${year}</option>`;
+      });
+      $("#assignmentSchoolYear").html(yearsHtml);
+
+      let coursesHtml = '<option value="">Select Course</option>';
+      courses.forEach((course) => {
+        coursesHtml += `
+          <option value="${course.id}">
+            ${course.course_code} - ${course.course_name}
+          </option>
+        `;
+      });
+      $("#assignmentCourse").html(coursesHtml);
+
+      loadAssignmentSubjects();
+      loadTeachingLoad();
+    })
+    .always(function () {
+      Loader.hide();
+    });
+
+  modal.show();
+});
+
+$(document).on(
+  "focus",
+  "#assignmentCourse, #assignmentYearLevel, #assignmentTrimester, #assignmentSchoolYear",
+  function () {
+    saveCurrentFacultySelections();
+  },
+);
+
+$(document).on(
+  "change",
+  "#assignmentCourse, #assignmentYearLevel, #assignmentTrimester, #assignmentSchoolYear",
+  function () {
+    selectedFacultySubjects = [];
+    loadAssignmentSubjects();
+    loadTeachingLoad();
+  },
+);
+
+//=======================================
+// SAVE ASSIGN SUBJECTS
+//=======================================
+
+$(document).on("click", "#saveSubjectAssignmentBtn", function () {
+  const facultyId = $("#assignmentFacultyId").val();
+  const schoolYear = $("#assignmentSchoolYear").val();
+  const trimester = $("#assignmentTrimester").val();
+  const assignments = getPendingFacultyAssignments();
+
+  if (!facultyId || !schoolYear || !trimester) {
+    AlertService.warning("Please complete all required fields.");
+    return;
+  }
+
+  if (!assignments.length) {
+    AlertService.warning("Please select a course and assign subjects.");
+    return;
+  }
+
+  if (countPendingFacultySubjects(assignments) === 0) {
+    AlertService.warning("Please assign at least one subject.");
+    return;
+  }
+
+  AlertService.saveConfirm("subject assignment").then(function (result) {
+    if (!result.isConfirmed) return;
+
+    Loader.show("Saving assignments...");
+
+    $.ajax({
+      url: "ajax/save_faculty_subjects.php",
+
+      type: "POST",
+
+      dataType: "json",
+
+      data: {
+        faculty_id: facultyId,
+        school_year: schoolYear,
+        trimester: trimester,
+        assignments: assignments,
+      },
+
+      success: function (response) {
+        if (response.success) {
+          Notification.success(response.message);
+
+          loadTeachingLoad();
+
+          bootstrap.Modal.getInstance(
+            document.getElementById("subjectAssignmentModal"),
+          ).hide();
+        } else {
+          AlertService.error(response.message);
+        }
+      },
+
+      error: function () {
+        AlertService.error("Unable to connect to server.");
+      },
+
+      complete: function () {
+        Loader.hide();
+      },
+    });
+  });
+});
+
+//=======================================
+// TEACHING LOAD DISPLAY
+//=======================================
+
+function loadTeachingLoad() {
+  $.getJSON(
+    "ajax/get_faculty_teaching_load.php",
+
+    {
+      faculty_id: $("#assignmentFacultyId").val(),
+
+      school_year: $("#assignmentSchoolYear").val(),
+
+      trimester: $("#assignmentTrimester").val(),
+    },
+
+    function (rows) {
+      let html = "";
+
+      if (!rows.length) {
+        html = `
+            <div class="text-muted">
+
+                No assigned subjects.
+
+            </div>
+        `;
+      } else {
+        let currentCourse = "";
+        let currentYear = "";
+
+        rows.forEach(function (row) {
+          if (
+            currentCourse !== row.course_code ||
+            currentYear !== row.year_level
+          ) {
+            currentCourse = row.course_code;
+            currentYear = row.year_level;
+
+            html += `
+
+            <div class="mt-3 fw-bold text-primary">
+
+                ${currentCourse}
+
+                •
+
+                Year ${currentYear}
+
+            </div>
+
+        `;
+          }
+
+          html += `
+
+        <div class="d-flex justify-content-between border-bottom py-2">
+
+            <span>
+
+                ${row.subject_code}
+
+            </span>
+
+            <small class="text-muted">
+
+                ${row.subject_name}
+
+            </small>
+
+        </div>
+
+    `;
+        });
+      }
+
+      $("#facultyTeachingLoad").html(html);
+    },
+  );
+}

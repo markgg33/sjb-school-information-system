@@ -348,3 +348,205 @@
     </div>
 
 </div>
+
+<!-- ASSIGN SUBJECT TO FACULTY MODAL -->
+
+<div
+    class="modal fade"
+    id="subjectAssignmentModal"
+    tabindex="-1">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+
+        <div class="modal-content modern-modal">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    Subject Assignment
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <input
+                    type="hidden"
+                    id="assignmentFacultyId">
+
+                <div class="row g-3 mb-4">
+
+                    <div class="col-md-6">
+
+                        <label class="modern-label">
+
+                            Faculty
+
+                        </label>
+
+                        <input
+                            id="assignmentFacultyName"
+                            class="form-control modern-input"
+                            readonly>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="modern-label">
+
+                            School Year
+
+                        </label>
+
+                        <select
+                            id="assignmentSchoolYear"
+                            class="form-select modern-input">
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <label class="modern-label">
+
+                            Trimester
+
+                        </label>
+
+                        <select
+                            id="assignmentTrimester"
+                            class="form-select modern-input">
+
+                            <option value="1">1st Trimester</option>
+                            <option value="2">2nd Trimester</option>
+                            <option value="3">3rd Trimester</option>
+
+                        </select>
+
+                    </div>
+
+                    <!-- NEW -->
+
+                    <div class="col-md-6">
+
+                        <label class="modern-label">
+
+                            Course
+
+                        </label>
+
+                        <select
+                            id="assignmentCourse"
+                            class="form-select modern-input">
+
+                            <option value="">
+                                Select Course
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-6">
+
+                        <label class="modern-label">
+
+                            Year Level
+
+                        </label>
+
+                        <select
+                            id="assignmentYearLevel"
+                            class="form-select modern-input">
+
+                            <option value="">
+                                Select Year
+                            </option>
+
+                            <option value="1">1st Year</option>
+                            <option value="2">2nd Year</option>
+                            <option value="3">3rd Year</option>
+                            <option value="4">4th Year</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+                <div class="row">
+
+                    <!-- AVAILABLE SUBJECTS -->
+
+                    <div class="col-lg-7">
+
+                        <h6 class="mb-3">
+
+                            Available Subjects
+
+                        </h6>
+
+                        <div
+                            id="assignmentSubjectsContainer"
+                            class="assignment-container">
+
+                        </div>
+
+                    </div>
+
+                    <!-- CURRENT LOAD -->
+
+                    <div class="col-lg-5">
+
+                        <h6 class="mb-3">
+
+                            Current Teaching Load
+
+                        </h6>
+
+                        <div
+                            id="facultyTeachingLoad"
+                            class="assignment-container">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer border-0">
+
+                <button
+                    class="modal-btn modal-btn-secondary"
+                    data-bs-dismiss="modal">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    class="modal-btn modal-btn-primary"
+                    id="saveSubjectAssignmentBtn">
+
+                    Save Assignment
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
