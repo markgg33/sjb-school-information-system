@@ -8,23 +8,26 @@ try {
 
     $pdo->beginTransaction();
 
-    $student_id  = $_POST['student_id'] ?? 0;
+    $student_id  = (int)($_POST['student_id'] ?? 0);
     $school_year = trim($_POST['school_year'] ?? '');
-    $year_level  = $_POST['year_level'] ?? 0;
-    $trimester   = $_POST['trimester'] ?? 0;
+    $year_level  = (int)($_POST['year_level'] ?? 0);
+    $trimester   = (int)($_POST['trimester'] ?? 0);
 
     $subject_ids = $_POST['subject_ids'] ?? [];
     $manual_subject_ids = $_POST['manual_subject_ids'] ?? [];
 
+    $section_id = !empty($_POST['section_id'])
+        ? (int)$_POST['section_id']
+        : null;
+
+
     if (
         empty($student_id) ||
-        empty($school_year) ||
+        empty($school_year) === '' ||
         empty($year_level) ||
         empty($trimester)
     ) {
-        throw new Exception(
-            'Please complete all required fields.'
-        );
+        throw new Exception('Please complete all required fields.');
     }
 
     $all_subject_ids = array_unique(
@@ -65,23 +68,38 @@ try {
     // CHECK DUPLICATE ENROLLMENT
     //====================================
 
-    $stmt = $pdo->prepare("
-        SELECT id
-        FROM enrollments
-        WHERE student_id = ?
-        AND school_year = ?
-        AND trimester = ?
-    ");
+    $sql = "
+SELECT id
+FROM enrollments
+WHERE student_id = ?
+AND school_year = ?
+AND year_level = ?
+AND trimester = ?
+";
 
-    $stmt->execute([
+    $params = [
         $student_id,
         $school_year,
+        $year_level,
         $trimester
-    ]);
+    ];
+
+    if ($section_id === null) {
+
+        $sql .= " AND section_id IS NULL";
+    } else {
+
+        $sql .= " AND section_id = ?";
+        $params[] = $section_id;
+    }
+
+    $stmt = $pdo->prepare($sql);
+
+    $stmt->execute($params);
 
     if ($stmt->fetch()) {
         throw new Exception(
-            'Student is already enrolled for this trimester.'
+            'Student is already enrolled for this year level and trimester.'
         );
     }
 
@@ -124,24 +142,26 @@ try {
     //====================================
 
     $stmt = $pdo->prepare("
-        INSERT INTO enrollments
-        (
-            student_id,
-            course_id,
-            school_year,
-            year_level,
-            trimester,
-            status
-        )
-        VALUES
-        (
-            ?, ?, ?, ?, ?, 'enrolled'
-        )
-    ");
+INSERT INTO enrollments
+(
+    student_id,
+    course_id,
+    section_id,
+    school_year,
+    year_level,
+    trimester,
+    status
+)
+VALUES
+(
+    ?, ?, ?, ?, ?, ?, 'enrolled'
+)
+");
 
     $stmt->execute([
         $student_id,
         $course_id,
+        $section_id,
         $school_year,
         $year_level,
         $trimester
@@ -187,27 +207,8 @@ try {
             $subject_id
         ]);
 
-        $enrollment_subject_id =
-            $pdo->lastInsertId();
-
-        $pdo->prepare("
-INSERT INTO grades
-(
-    enrollment_subject_id
-)
-VALUES
-(
-    ?
-)
-")->execute([
-            $enrollment_subject_id
-        ]);
-
-        $enrollment_subject_id =
-            $pdo->lastInsertId();
-
         $gradeStmt->execute([
-            $enrollment_subject_id
+            $pdo->lastInsertId()
         ]);
     }
 

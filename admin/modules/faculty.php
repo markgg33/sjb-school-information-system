@@ -481,6 +481,26 @@
 
                     </div>
 
+                    <div class="col-md-6">
+
+                        <label class="modern-label">
+
+                            Section
+
+                        </label>
+
+                        <select
+                            id="assignmentSection"
+                            class="form-select modern-input">
+
+                            <option value="">
+                                Select Section
+                            </option>
+
+                        </select>
+
+                    </div>
+
                 </div>
 
                 <div class="row">

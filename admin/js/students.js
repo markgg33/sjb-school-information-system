@@ -64,7 +64,7 @@ function loadStudents(page = 1) {
       if (!response.students.length) {
         html = `
           <tr>
-            <td colspan="7" class="text-center py-5">
+            <td colspan="8" class="text-center py-5">
                 <div class="empty-state">
 
                  <i class="fa-regular fa-circle-user empty-icon"></i>
@@ -139,17 +139,29 @@ function loadStudents(page = 1) {
               ${student.first_name}
             </td>
 
-            <td>
-              ${student.course_code ?? "-"}
-            </td>
+<td>
+  ${student.course_code ?? "-"}
+</td>
 
-            <td>
-              ${student.gender}
-            </td>
+<td>
+  ${
+    student.section_name
+      ? `<span class="badge bg-info">
+            ${student.year_level}${student.section_name}
+         </span>`
+      : `<span class="text-muted">
+            —
+         </span>`
+  }
+</td>
 
-            <td>
-              ${typeBadge}
-            </td>
+<td>
+  ${genderBadge}
+</td>
+
+<td>
+  ${typeBadge}
+</td>
 
             <td>
               ${statusBadge}

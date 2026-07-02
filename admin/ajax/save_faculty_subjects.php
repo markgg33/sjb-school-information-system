@@ -21,15 +21,17 @@ try {
     if (!is_array($assignments) || empty($assignments)) {
         $course_id  = (int)($_POST['course_id'] ?? 0);
         $year_level = (int)($_POST['year_level'] ?? 0);
+        $section_id = (int)($_POST['section_id'] ?? 0);
         $subjects   = $_POST['subjects'] ?? [];
 
-        if (!$course_id || !$year_level) {
+        if (!$course_id || !$year_level || !$section_id) {
             throw new Exception("Please complete all required fields.");
         }
 
         $assignments = [[
             'course_id'  => $course_id,
             'year_level' => $year_level,
+            'section_id' => $section_id,
             'subjects'   => $subjects,
         ]];
     }
@@ -60,6 +62,7 @@ try {
         AND fs.trimester = ?
         AND fs.course_id = ?
         AND fs.year_level = ?
+        AND fs.section_id = ?
         AND fs.faculty_id != ?
         AND fs.subject_id = ?
         LIMIT 1
@@ -68,9 +71,10 @@ try {
     foreach ($assignments as $assignment) {
         $course_id  = (int)($assignment['course_id'] ?? 0);
         $year_level = (int)($assignment['year_level'] ?? 0);
+        $section_id = (int)($assignment['section_id'] ?? 0);
         $subjects   = $assignment['subjects'] ?? [];
 
-        if (!$course_id || !$year_level) {
+        if (!$course_id || !$year_level || !$section_id) {
             throw new Exception("Invalid assignment data.");
         }
 
@@ -80,6 +84,7 @@ try {
                 $trimester,
                 $course_id,
                 $year_level,
+                $section_id,
                 $faculty_id,
                 (int)$subject,
             ]);
@@ -89,9 +94,9 @@ try {
             if ($conflict) {
                 throw new Exception(
                     $conflict['subject_code'] .
-                    " is already assigned to " .
-                    $conflict['last_name'] . ", " .
-                    $conflict['first_name'] . "."
+                        " is already assigned to " .
+                        $conflict['last_name'] . ", " .
+                        $conflict['first_name'] . "."
                 );
             }
         }
@@ -104,6 +109,7 @@ try {
         WHERE faculty_id = ?
         AND course_id = ?
         AND year_level = ?
+        AND section_id = ?
         AND school_year = ?
         AND trimester = ?
     ");
@@ -115,18 +121,20 @@ try {
             subject_id,
             course_id,
             year_level,
+            section_id,
             school_year,
             trimester
         )
-        VALUES (?,?,?,?,?,?)
+        VALUES (?,?,?,?,?,?,?)
     ");
 
     foreach ($assignments as $assignment) {
         $course_id  = (int)($assignment['course_id'] ?? 0);
         $year_level = (int)($assignment['year_level'] ?? 0);
+        $section_id = (int)($assignment['section_id'] ?? 0);
         $subjects   = $assignment['subjects'] ?? [];
 
-        if (!$course_id || !$year_level) {
+        if (!$course_id || !$year_level || !$section_id) {
             throw new Exception("Invalid assignment data.");
         }
 
@@ -134,6 +142,7 @@ try {
             $faculty_id,
             $course_id,
             $year_level,
+            $section_id,
             $school_year,
             $trimester,
         ]);
@@ -144,6 +153,7 @@ try {
                 (int)$subject,
                 $course_id,
                 $year_level,
+                $section_id,
                 $school_year,
                 $trimester,
             ]);

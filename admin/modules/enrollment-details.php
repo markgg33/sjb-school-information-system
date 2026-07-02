@@ -70,7 +70,7 @@
 
         <div class="row g-3">
 
-            <div class="col-md-4">
+            <div class="col-md-3">
 
                 <label class="modern-label">
                     School Year
@@ -80,12 +80,11 @@
                     type="text"
                     id="schoolYear"
                     name="school_year"
-                    class="form-control modern-input"
-                    placeholder="2026-2027">
+                    class="form-control modern-input">
 
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
 
                 <label class="modern-label">
                     Year Level
@@ -105,7 +104,26 @@
 
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
+
+                <label class="modern-label">
+                    Section
+                </label>
+
+                <select
+                    id="sectionId"
+                    name="section_id"
+                    class="form-select modern-input">
+
+                    <option value="">
+                        Select Section
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="col-md-3">
 
                 <label class="modern-label">
                     Trimester

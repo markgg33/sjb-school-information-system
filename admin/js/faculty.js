@@ -16,7 +16,13 @@ function getAssignmentContextKey() {
     return null;
   }
 
-  return `${facultyId}|${schoolYear}|${trimester}|${course}|${year}`;
+  const section = $("#assignmentSection").val();
+
+  if (!section) {
+    return null;
+  }
+
+  return `${facultyId}|${schoolYear}|${trimester}|${course}|${year}|${section}`;
 }
 
 function saveCurrentFacultySelections() {
@@ -43,11 +49,15 @@ function getPendingFacultyAssignments() {
       return;
     }
 
-    const [, , , courseId, yearLevel] = key.split("|");
+    const [, , , courseId, yearLevel, sectionId] = key.split("|");
 
     assignments.push({
       course_id: courseId,
+
       year_level: yearLevel,
+
+      section_id: sectionId,
+
       subjects: facultySubjectSelectionsCache[key],
     });
   });
@@ -510,6 +520,7 @@ function loadAssignmentSubjects() {
       course_id: course,
       year_level: year,
       trimester: trimester,
+      section_id: $("#assignmentSection").val(),
     }),
 
     $.getJSON("ajax/get_faculty_subjects.php", {
@@ -535,7 +546,9 @@ function loadAssignmentSubjects() {
         selectedFacultySubjects = [...assigned];
 
         if (contextKey) {
-          facultySubjectSelectionsCache[contextKey] = [...selectedFacultySubjects];
+          facultySubjectSelectionsCache[contextKey] = [
+            ...selectedFacultySubjects,
+          ];
         }
       }
 
@@ -626,6 +639,52 @@ function loadAssignmentCourses() {
 }
 
 //=======================================
+// LOAD ASSIGNMENT COURSES SECTIONS
+//=======================================
+
+function loadAssignmentSections() {
+  const course = $("#assignmentCourse").val();
+  const year = $("#assignmentYearLevel").val();
+
+  if (!course || !year) {
+    $("#assignmentSection").html(`
+            <option value="">
+                Select Section
+            </option>
+        `);
+
+    return;
+  }
+
+  $.getJSON(
+    "ajax/get_course_sections_dropdown.php",
+
+    {
+      course_id: course,
+      year_level: year,
+    },
+
+    function (rows) {
+      let html = `
+                <option value="">
+                    Select Section
+                </option>
+            `;
+
+      rows.forEach((section) => {
+        html += `
+                    <option value="${section.id}">
+                        ${section.section_name}
+                    </option>
+                `;
+      });
+
+      $("#assignmentSection").html(html);
+    },
+  );
+}
+
+//=======================================
 // OPEN SUBJECT ASSIGNMENT
 //=======================================
 
@@ -667,6 +726,7 @@ $(document).on("click", ".assignSubjectsBtn", function () {
       });
       $("#assignmentCourse").html(coursesHtml);
 
+      loadAssignmentSections();
       loadAssignmentSubjects();
       loadTeachingLoad();
     })
@@ -685,12 +745,24 @@ $(document).on(
   },
 );
 
+$(document).on("change", "#assignmentCourse,#assignmentYearLevel", function () {
+  loadAssignmentSections();
+
+  selectedFacultySubjects = [];
+
+  loadAssignmentSubjects();
+
+  loadTeachingLoad();
+});
+
 $(document).on(
   "change",
-  "#assignmentCourse, #assignmentYearLevel, #assignmentTrimester, #assignmentSchoolYear",
+  "#assignmentSection,#assignmentTrimester,#assignmentSchoolYear",
   function () {
     selectedFacultySubjects = [];
+
     loadAssignmentSubjects();
+
     loadTeachingLoad();
   },
 );

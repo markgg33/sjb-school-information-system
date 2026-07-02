@@ -144,6 +144,8 @@
 
                     <th>Course</th>
 
+                    <th>Section</th>
+
                     <th>Gender</th>
 
                     <th>Type</th>

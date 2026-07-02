@@ -78,12 +78,29 @@ SELECT
 
     s.*,
 
-    c.course_code
+    c.course_code,
+
+    cs.section_name,
+
+    le.year_level
 
 FROM students s
 
 LEFT JOIN courses c
     ON c.id = s.course_id
+
+LEFT JOIN enrollments le
+    ON le.id =
+    (
+        SELECT e2.id
+        FROM enrollments e2
+        WHERE e2.student_id = s.id
+        ORDER BY e2.id DESC
+        LIMIT 1
+    )
+
+LEFT JOIN course_sections cs
+    ON cs.id = le.section_id
 
 WHERE $whereSql
 

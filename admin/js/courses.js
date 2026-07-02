@@ -18,9 +18,7 @@ function loadCourses() {
                         <td>
 
                             <span class="badge bg-${
-                              course.status === "active"
-                                ? "success"
-                                : "warning"
+                              course.status === "active" ? "success" : "warning"
                             } text-uppercase">
 
                                 ${course.status}
@@ -46,6 +44,15 @@ function loadCourses() {
         <i class="fa-solid fa-trash"></i>
 
     </button>
+
+    <button
+      class="btn btn-sm btn-outline-success manageSectionsBtn"
+      data-id="${course.id}"
+      data-name="${course.course_code}">
+
+      <i class="fa-solid fa-layer-group"></i>
+
+      </button>
 
 </td>
 
@@ -74,6 +81,123 @@ $(document).on("click", "#btnAddCourse", function () {
 });
 
 //=======================================
+// OPEN MANAGE SECTIONS MODAL
+//=======================================
+
+$(document).on("click", ".manageSectionsBtn", function () {
+  const id = $(this).data("id");
+
+  $("#sectionCourseId").val(id);
+
+  loadCourseSections();
+
+  new bootstrap.Modal(document.getElementById("sectionsModal")).show();
+});
+
+//=======================================
+// LOAD COURSE SECTIONS
+//=======================================
+
+function loadCourseSections() {
+  $.getJSON(
+    "ajax/get_course_sections.php",
+
+    {
+      course_id: $("#sectionCourseId").val(),
+    },
+
+    function (rows) {
+      let html = "";
+
+      for (let year = 1; year <= 4; year++) {
+        html += `
+
+<div class="dashboard-card mb-4">
+
+<h5 class="mb-3">
+
+Year ${year}
+
+</h5>
+
+`;
+
+        if (rows[year]) {
+          rows[year].forEach((section) => {
+            html += `
+
+<div class="border rounded p-3 mb-2 d-flex justify-content-between align-items-center">
+
+<div>
+
+<h6 class="mb-1">
+
+${section.section_name}
+
+</h6>
+
+<small class="text-muted">
+
+Display Order :
+${section.display_order}
+
+</small>
+
+</div>
+
+<div>
+
+<button
+
+class="btn btn-outline-primary btn-sm editSectionBtn"
+
+data-section='${JSON.stringify(section)}'>
+
+<i class="fa-solid fa-pencil"></i>
+
+</button>
+
+<button
+
+class="btn btn-outline-danger btn-sm deleteSectionBtn"
+
+data-id="${section.id}">
+
+<i class="fa-solid fa-trash"></i>
+
+</button>
+
+</div>
+
+</div>
+
+`;
+          });
+        } else {
+          html += `
+
+<div class="text-muted">
+
+No sections.
+
+</div>
+
+`;
+        }
+
+        html += `
+
+</div>
+
+`;
+      }
+
+      $("#courseSectionsContainer").html(html);
+    },
+  );
+}
+
+//=======================================
 // EDIT COURSE
 //=======================================
 
@@ -93,6 +217,24 @@ $(document).on("click", ".editCourseBtn", function () {
   $("#courseModal .modal-title").text("Edit Course");
 
   new bootstrap.Modal(document.getElementById("courseModal")).show();
+});
+
+//=======================================
+// EDIT SECTION
+//=======================================
+
+$(document).on("click", ".editSectionBtn", function () {
+  const section = $(this).data("section");
+
+  $("#sectionId").val(section.id);
+
+  $('[name="year_level"]').val(section.year_level);
+
+  $('[name="section_name"]').val(section.section_name);
+
+  $('[name="display_order"]').val(section.display_order);
+
+  $('[name="status"]').val(section.status);
 });
 
 //=======================================
@@ -133,6 +275,42 @@ $(document).on("click", "#saveCourseBtn", function () {
 });
 
 //=======================================
+// SAVE SECTION
+//=======================================
+
+$(document).on("click", "#saveSectionBtn", function () {
+  AlertService.saveConfirm("section")
+
+    .then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      $.ajax({
+        url: "ajax/save_course_section.php",
+
+        type: "POST",
+
+        data: $("#sectionForm").serialize(),
+
+        dataType: "json",
+
+        success(res) {
+          if (res.success) {
+            Notification.success("Section saved.");
+
+            $("#sectionForm")[0].reset();
+
+            $("#sectionId").val("");
+
+            loadCourseSections();
+          }
+        },
+      });
+    });
+});
+
+//=======================================
 // DELETE COURSE
 //=======================================
 
@@ -170,4 +348,38 @@ $(document).on("click", ".deleteCourseBtn", function () {
       },
     });
   });
+});
+
+//=======================================
+// DELETE SECTION
+//=======================================
+
+$(document).on("click", ".deleteSectionBtn", function () {
+  const id = $(this).data("id");
+
+  AlertService.deleteConfirm("section")
+
+    .then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      $.post(
+        "ajax/delete_course_section.php",
+
+        {
+          id: id,
+        },
+
+        function (res) {
+          if (res.success) {
+            Notification.success("Section deleted.");
+
+            loadCourseSections();
+          }
+        },
+
+        "json",
+      );
+    });
 });

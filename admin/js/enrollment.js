@@ -4,6 +4,7 @@
 let selectedEnrollmentStudent = null;
 let selectedEnrollmentId = null;
 let enrollmentEditMode = false;
+let selectedStudentCourse = null;
 
 let enrolledSubjectIds = [];
 
@@ -21,10 +22,9 @@ function toggleEnrollmentMode() {
 
     //MAKE INPUT FIELDS IN EDIT READ ONLY
     $("#schoolYear").prop("readonly", true);
-
     $("#yearLevel").prop("disabled", true);
-
     $("#trimester").prop("disabled", true);
+    $("#sectionId").prop("disabled", true);
 
     $("#enrollmentPageTitle").html(`
   <i class="fa-solid fa-pen-to-square me-2"></i>
@@ -46,10 +46,9 @@ function toggleEnrollmentMode() {
     $("#curriculumSubjectsContainer").show();
 
     $("#schoolYear").prop("readonly", false);
-
     $("#yearLevel").prop("disabled", false);
-
     $("#trimester").prop("disabled", false);
+    $("#sectionId").prop("disabled", false);
 
     $("#enrollmentPageTitle").html(`
   <i class="fa-solid fa-user-check me-2"></i>
@@ -90,6 +89,69 @@ function loadEnrollmentCourses() {
 }
 
 //=======================================
+// LOAD COURSE SECTIONS
+//=======================================
+
+function loadEnrollmentSections(selectedSection = "") {
+  if (!selectedStudentCourse) {
+    $("#sectionId").html(`
+            <option value="">
+                Select Section
+            </option>
+        `);
+
+    return;
+  }
+
+  Loader.show("Loading sections...");
+
+  $.getJSON(
+    "ajax/get_course_sections_dropdown.php",
+    {
+      course_id: selectedStudentCourse,
+      year_level: $("#yearLevel").val(),
+    },
+    function (rows) {
+      let html = "";
+
+      rows.forEach((section) => {
+        html += `
+                    <option
+                        value="${section.id}"
+                        ${selectedSection == section.id ? "selected" : ""}>
+
+                        ${section.section_name}
+
+                    </option>
+                `;
+      });
+
+      if (rows.length === 0) {
+        html = `
+        <option value="">
+            No Section Required
+        </option>
+    `;
+
+        $("#sectionId").prop("disabled", true);
+      } else {
+        $("#sectionId").prop("disabled", false);
+      }
+
+      $("#sectionId").html(html);
+
+      /*if (!selectedSection && rows.length) {
+        $("#sectionId").val(rows[0].id);
+      }*/
+
+      loadCurriculumSubjects();
+    },
+  ).always(function () {
+    Loader.hide();
+  });
+}
+
+//=======================================
 // LOAD CURRICULUM SUBJECTS
 //=======================================
 
@@ -101,7 +163,10 @@ function loadCurriculumSubjects() {
 
   const trimester = $("#trimester").val();
 
-  if (!studentId) return;
+  if (!studentId) {
+    Loader.hide();
+    return;
+  }
 
   $.getJSON(
     "ajax/get_curriculum_subjects.php",
@@ -109,10 +174,15 @@ function loadCurriculumSubjects() {
       student_id: studentId,
       year_level: yearLevel,
       trimester: trimester,
+      section_id: $("#sectionId").val(),
     },
 
     function (subjects) {
-      let html = "";
+      let html = `
+<option value="">
+    Select Section
+</option>
+`;
 
       let totalUnits = 0;
 
@@ -140,11 +210,7 @@ function loadCurriculumSubjects() {
       name="subject_ids[]"
       value="${subject.id}"
       data-units="${subject.units}"
-      ${
-        enrollmentEditMode && enrolledSubjectIds.includes(subject.id.toString())
-          ? "checked"
-          : "checked"
-      }>
+      checked>
 
     <label class="form-check-label">
 
@@ -437,6 +503,7 @@ function loadEnrollmentDetails() {
     },
     function (student) {
       $("#selectedStudentId").val(student.id);
+      selectedStudentCourse = student.course_id;
       const currentYear = new Date().getFullYear();
 
       $("#schoolYear").val(`${currentYear}-${currentYear + 1}`);
@@ -488,7 +555,7 @@ function loadEnrollmentDetails() {
 
       updateManualSubjectCount();
 
-      loadCurriculumSubjects();
+      loadEnrollmentSections();
       loadAdditionalSubjects();
     },
   ).always(function () {
@@ -523,7 +590,11 @@ function loadEnrollmentEdit() {
 
       $("#yearLevel").val(e.year_level);
 
+      selectedStudentCourse = e.course_id;
+
       $("#trimester").val(e.trimester);
+
+      loadEnrollmentSections(e.section_id);
 
       $("#selectedStudentInfo").html(`
         <div class="row">
@@ -763,6 +834,11 @@ function loadEnrollments(page = 1) {
 
     <td>
         ${s.course_code} - ${s.course_name}
+
+<div class="small text-primary fw-semibold">
+    Section:
+    ${s.section_name ?? "N/A"}
+</div>
     </td>
 
     <td>
@@ -826,6 +902,11 @@ $(document).on("click", "#saveEnrollmentBtn", function () {
       ? "ajax/update_enrollment_subjects.php"
       : "ajax/save_enrollment.php";
 
+    // Allow disabled fields to be serialized
+    $("#yearLevel").prop("disabled", false);
+    $("#trimester").prop("disabled", false);
+    $("#sectionId").prop("disabled", false);
+
     $.ajax({
       url: saveUrl,
 
@@ -854,6 +935,12 @@ $(document).on("click", "#saveEnrollmentBtn", function () {
       },
 
       complete: function () {
+        if (enrollmentEditMode) {
+          $("#yearLevel").prop("disabled", true);
+          $("#trimester").prop("disabled", true);
+          $("#sectionId").prop("disabled", false);
+        }
+
         Loader.hide();
       },
     });
@@ -1127,6 +1214,7 @@ $(document).on("click", ".viewEnrollmentHistoryBtn", function () {
                         <th>School Year</th>
                         <th>Year Level</th>
                         <th>Trimester</th>
+                        <th>Section</th>
                         <th>Status</th>
                         <th width="140">Action</th>
                     </tr>
@@ -1143,17 +1231,19 @@ $(document).on("click", ".viewEnrollmentHistoryBtn", function () {
 
     <td>${e.year_level}</td>
 
-    <td>
-        ${
-          e.trimester == 1
-            ? "1st Trimester"
-            : e.trimester == 2
-              ? "2nd Trimester"
-              : "3rd Trimester"
-        }
-    </td>
+<td>
+    ${
+      e.trimester == 1
+        ? "1st Trimester"
+        : e.trimester == 2
+          ? "2nd Trimester"
+          : "3rd Trimester"
+    }
+</td>
 
-    <td>${e.status}</td>
+<td>${e.section_name ?? "N/A"}</td>
+
+<td>${e.status}</td>
 
 <td>
 
@@ -1246,12 +1336,15 @@ $(document).on("click", "#searchAdditionalSubjectsBtn", function () {
 });
 
 //=======================================
-// LOAD CURRICULUM SUBJECTS
+// LOAD ENROLLMENT SUBJECTS
 //=======================================
-$(document).on("change", "#yearLevel, #trimester", function () {
-  loadCurriculumSubjects();
+$(document).on("change", "#yearLevel", function () {
+  loadEnrollmentSections();
 });
 
+$(document).on("change", "#sectionId,#trimester", function () {
+  loadCurriculumSubjects();
+});
 //=======================================
 // SUBJECT UNIT RECALCULATION
 //=======================================

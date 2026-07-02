@@ -878,6 +878,52 @@
 }
 
 /* =======================================================
+   FACULTY
+======================================================= */
+
+.workspace-tabs {
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 25px;
+
+  margin-bottom: 25px;
+}
+
+.workspace-tab {
+  border: none;
+
+  background: #fff;
+
+  color: #6c757d;
+
+  padding: 12px 22px;
+
+  border-radius: 14px;
+
+  font-weight: 600;
+
+  transition: 0.25s;
+
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.workspace-tab:hover {
+  transform: translateY(-2px);
+
+  color: var( --sjb-primary);
+}
+
+.workspace-tab.active {
+  background: linear-gradient(135deg, var( --sjb-primary), #4f8cff);
+
+  color: #fff;
+
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
+}
+
+/* =======================================================
    MEDIA QUERIES
 ======================================================= */
 

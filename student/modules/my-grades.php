@@ -14,15 +14,9 @@
 
     <div id="gradesContainer">
 
-        <div class="text-center py-5">
+        <div class="text-center py-5 text-muted">
 
-            <div class="spinner-border text-primary"></div>
-
-            <div class="mt-3">
-
-                Loading grades...
-
-            </div>
+            Loading grades...
 
         </div>
 
