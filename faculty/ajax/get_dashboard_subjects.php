@@ -8,15 +8,21 @@ $stmt = $pdo->prepare("
 
 SELECT
 
-fs.id,
+fs.id AS faculty_subject_id,
+
+fs.subject_id,
+fs.course_id,
+fs.section_id,
+
+fs.school_year,
+fs.trimester,
+fs.year_level,
 
 s.subject_code,
-
 s.subject_name,
 
 c.course_code,
-
-fs.year_level,
+c.course_name,
 
 cs.section_name,
 
@@ -28,51 +34,46 @@ FROM enrollments e
 
 INNER JOIN enrollment_subjects es
 
-ON es.enrollment_id=e.id
+ON es.enrollment_id = e.id
 
-AND es.subject_id=fs.subject_id
+AND es.subject_id = fs.subject_id
 
 WHERE
 
-e.course_id=fs.course_id
+e.course_id = fs.course_id
 
-AND e.school_year=fs.school_year
+AND e.school_year = fs.school_year
 
-AND e.trimester=fs.trimester
+AND e.trimester = fs.trimester
 
-AND e.year_level=fs.year_level
+AND e.year_level = fs.year_level
 
-AND(
+AND (
 
 (fs.section_id IS NULL AND e.section_id IS NULL)
 
 OR
 
-e.section_id=fs.section_id
+e.section_id = fs.section_id
 
 )
 
-) students
+) AS students
 
 FROM faculty_subjects fs
 
 INNER JOIN subjects s
-
-ON s.id=fs.subject_id
+ON s.id = fs.subject_id
 
 INNER JOIN courses c
-
-ON c.id=fs.course_id
+ON c.id = fs.course_id
 
 LEFT JOIN course_sections cs
+ON cs.id = fs.section_id
 
-ON cs.id=fs.section_id
+WHERE fs.faculty_id = ?
 
-WHERE fs.faculty_id=?
-
-ORDER BY
-
-s.subject_code
+ORDER BY s.subject_code
 
 ");
 

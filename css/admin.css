@@ -77,11 +77,49 @@
 }
 
 #dashboardSubjects {
-  max-height: 340px;
+  max-height: 620px;
 
   overflow-y: auto;
 
   padding-right: 6px;
+}
+
+.dashboard-subject-card {
+  padding: 18px;
+
+  transition: 0.2s ease;
+}
+
+.dashboard-subject-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard-subject-card h6 {
+  margin-bottom: 4px;
+
+  font-size: 15px;
+}
+
+.dashboard-subject-card .badge {
+  font-size: 11px;
+}
+
+.module-action-btn-sm {
+  width: 100%;
+
+  justify-content: center;
+
+  padding: 8px 12px;
+
+  font-size: 13px;
+}
+
+.module-action-btn-sm .btn-icon {
+  width: 28px;
+
+  height: 28px;
 }
 
 /* =======================================================

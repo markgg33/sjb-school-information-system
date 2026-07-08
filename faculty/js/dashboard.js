@@ -71,48 +71,112 @@ function loadDashboardSubjects() {
     } else {
       rows.forEach(function (row) {
         html += `
-<div class="border rounded p-3 mb-3">
 
-<div class="d-flex justify-content-between">
-
-<div>
-
-<h6 class="mb-1">
-
-${row.subject_code}
-
-</h6>
-
-<div class="text-muted">
-
-${row.subject_name}
-
-</div>
-
-</div>
-
-<span class="badge bg-primary">
-
-${row.students} Students
-
-</span>
-
-</div>
-
-<div class="small text-secondary mt-2">
-
-${row.course_code}
-
-•
-
-Year ${row.year_level}
-
-${row.section_name ? " • " + row.section_name : ""}
-
-</div>
-
-</div>
-`;
+        <div class="col-md-6">
+        
+        <div class="dashboard-card dashboard-subject-card h-100">
+        
+        <div class="d-flex justify-content-between">
+        
+        <div>
+        
+        <h6 class="mb-1">
+        
+        ${row.subject_code}
+        
+        </h6>
+        
+        <div class="fw-semibold">
+        
+        ${row.subject_name}
+        
+        </div>
+        
+        <div class="small text-muted mt-2">
+        
+        ${row.course_code}
+        
+        •
+        
+        Year ${row.year_level}
+        
+        ${row.section_name ? " • " + row.section_name : ""}
+        
+        </div>
+        
+        <div class="small text-muted">
+        
+        ${row.school_year}
+        
+        •
+        
+        Trimester ${row.trimester}
+        
+        </div>
+        
+        </div>
+        
+        <div>
+        
+        <span class="badge bg-primary">
+        
+        ${row.students}
+        
+        </span>
+        
+        </div>
+        
+        </div>
+        
+        <hr>
+        
+        <button
+        
+        class="module-action-btn module-action-btn-sm openWorkspaceBtn"
+        
+       data-faculty-subject="${row.faculty_subject_id}"
+        
+        data-subject="${row.subject_id}"
+        
+        data-course="${row.course_id}"
+        
+        data-year="${row.year_level}"
+        
+        data-section="${row.section_id}"
+        
+        data-section-name="${row.section_name ?? ""}"
+        
+        data-school="${row.school_year}"
+        
+        data-trimester="${row.trimester}"
+        
+        data-subject-code="${row.subject_code}"
+        
+        data-subject-name="${row.subject_name}"
+        
+        data-course-code="${row.course_code}"
+        
+        data-course-name="${row.course_name}">
+        
+        <div class="btn-icon">
+        
+        <i class="fa-solid fa-arrow-right"></i>
+        
+        </div>
+        
+        <span>
+        
+        Open
+        
+        </span>
+        
+        </button>
+        
+        </div>
+        
+        </div>
+        
+        `;
       });
     }
 

@@ -126,9 +126,31 @@
 
     <div class="row g-4">
 
-        <div class="col-lg-5">
+        <!-- LEFT -->
+        <div class="col-lg-7">
 
             <div class="dashboard-card">
+
+                <h5 class="mb-3">
+
+                    My Subjects
+
+                </h5>
+
+                <div
+                    id="dashboardSubjects"
+                    class="row g-3">
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col-lg-5">
+
+            <div class="dashboard-card mb-4">
 
                 <h5 class="mb-3">
 
@@ -238,22 +260,6 @@
 
             </div>
 
-            <div class="dashboard-card mt-4">
-
-                <h5 class="mb-3">
-
-                    My Subjects
-
-                </h5>
-
-                <div id="dashboardSubjects"></div>
-
-            </div>
-
-        </div>
-
-        <div class="col-lg-7">
-
             <div class="dashboard-card">
 
                 <h5 class="mb-3">
@@ -262,13 +268,9 @@
 
                 </h5>
 
-                <div id="recentActivity" class="activity-list">
-
-                    <div class="text-muted">
-
-                        Loading...
-
-                    </div>
+                <div
+                    id="recentActivity"
+                    class="activity-list">
 
                 </div>
 
