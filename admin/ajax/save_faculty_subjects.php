@@ -21,10 +21,13 @@ try {
     if (!is_array($assignments) || empty($assignments)) {
         $course_id  = (int)($_POST['course_id'] ?? 0);
         $year_level = (int)($_POST['year_level'] ?? 0);
-        $section_id = (int)($_POST['section_id'] ?? 0);
+        $section_id = isset($_POST['section_id']) &&
+            $_POST['section_id'] !== ''
+            ? (int)$_POST['section_id']
+            : null;
         $subjects   = $_POST['subjects'] ?? [];
 
-        if (!$course_id || !$year_level || !$section_id) {
+        if (!$course_id || !$year_level) {
             throw new Exception("Please complete all required fields.");
         }
 
@@ -36,7 +39,8 @@ try {
         ]];
     }
 
-    $totalSubjects = 0;
+    // WORKING VERSION - COMMENTED OUT FOR NOW
+    /*$totalSubjects = 0;
 
     foreach ($assignments as $assignment) {
         $subjects = $assignment['subjects'] ?? [];
@@ -45,9 +49,14 @@ try {
 
     if ($totalSubjects === 0) {
         throw new Exception("Please assign at least one subject.");
+    }*/
+
+    // ALLOWS REMOVAL OF ALL SUBJECTS FROM A COURSE/YEAR/SECTION COMBINATION
+    if (empty($assignments)) {
+        throw new Exception("No assignment data received.");
     }
 
-    $conflictStmt = $pdo->prepare("
+    /*$conflictStmt = $pdo->prepare("
         SELECT
             s.subject_code,
             s.subject_name,
@@ -66,32 +75,80 @@ try {
         AND fs.faculty_id != ?
         AND fs.subject_id = ?
         LIMIT 1
-    ");
+    ");*/
+
+
 
     foreach ($assignments as $assignment) {
         $course_id  = (int)($assignment['course_id'] ?? 0);
         $year_level = (int)($assignment['year_level'] ?? 0);
-        $section_id = (int)($assignment['section_id'] ?? 0);
+        $section_id = isset($assignment['section_id']) &&
+            $assignment['section_id'] !== '' &&
+            $assignment['section_id'] !== null
+            ? (int)$assignment['section_id']
+            : null;
         $subjects   = $assignment['subjects'] ?? [];
 
-        if (!$course_id || !$year_level || !$section_id) {
+        if (!$course_id || !$year_level) {
             throw new Exception("Invalid assignment data.");
         }
 
+        $sql = "
+SELECT
+    s.subject_code,
+    s.subject_name,
+    f.first_name,
+    f.last_name
+FROM faculty_subjects fs
+INNER JOIN subjects s
+    ON s.id = fs.subject_id
+INNER JOIN faculty f
+    ON f.id = fs.faculty_id
+WHERE
+    fs.school_year = ?
+AND fs.trimester = ?
+AND fs.course_id = ?
+AND fs.year_level = ?
+AND fs.faculty_id != ?
+";
+
+        $params = [
+            $school_year,
+            $trimester,
+            $course_id,
+            $year_level,
+            $faculty_id
+        ];
+
+        if ($section_id === null) {
+
+            $sql .= " AND fs.section_id IS NULL";
+        } else {
+
+            $sql .= " AND fs.section_id = ?";
+
+            $params[] = $section_id;
+        }
+
+        $sql .= "
+    AND fs.subject_id = ?
+    LIMIT 1
+";
+
         foreach ($subjects as $subject) {
-            $conflictStmt->execute([
-                $school_year,
-                $trimester,
-                $course_id,
-                $year_level,
-                $section_id,
-                $faculty_id,
-                (int)$subject,
-            ]);
+
+            $paramsWithSubject = $params;
+
+            $paramsWithSubject[] = (int)$subject;
+
+            $conflictStmt = $pdo->prepare($sql);
+
+            $conflictStmt->execute($paramsWithSubject);
 
             $conflict = $conflictStmt->fetch(PDO::FETCH_ASSOC);
 
             if ($conflict) {
+
                 throw new Exception(
                     $conflict['subject_code'] .
                         " is already assigned to " .
@@ -103,16 +160,6 @@ try {
     }
 
     $pdo->beginTransaction();
-
-    $delete = $pdo->prepare("
-        DELETE FROM faculty_subjects
-        WHERE faculty_id = ?
-        AND course_id = ?
-        AND year_level = ?
-        AND section_id = ?
-        AND school_year = ?
-        AND trimester = ?
-    ");
 
     $insert = $pdo->prepare("
         INSERT INTO faculty_subjects
@@ -131,21 +178,47 @@ try {
     foreach ($assignments as $assignment) {
         $course_id  = (int)($assignment['course_id'] ?? 0);
         $year_level = (int)($assignment['year_level'] ?? 0);
-        $section_id = (int)($assignment['section_id'] ?? 0);
+        $section_id = isset($assignment['section_id']) &&
+            $assignment['section_id'] !== '' &&
+            $assignment['section_id'] !== null
+            ? (int)$assignment['section_id']
+            : null;
         $subjects   = $assignment['subjects'] ?? [];
 
-        if (!$course_id || !$year_level || !$section_id) {
+        if (!$course_id || !$year_level) {
             throw new Exception("Invalid assignment data.");
         }
 
-        $delete->execute([
+        $sql = "
+DELETE FROM faculty_subjects
+WHERE faculty_id = ?
+AND course_id = ?
+AND year_level = ?
+AND school_year = ?
+AND trimester = ?
+";
+
+        $params = [
             $faculty_id,
             $course_id,
             $year_level,
-            $section_id,
             $school_year,
-            $trimester,
-        ]);
+            $trimester
+        ];
+
+        if ($section_id === null) {
+
+            $sql .= " AND section_id IS NULL";
+        } else {
+
+            $sql .= " AND section_id = ?";
+
+            $params[] = $section_id;
+        }
+
+        $delete = $pdo->prepare($sql);
+
+        $delete->execute($params);
 
         foreach ($subjects as $subject) {
             $insert->execute([

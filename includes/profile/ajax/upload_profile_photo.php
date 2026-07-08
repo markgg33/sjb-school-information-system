@@ -1,7 +1,7 @@
 <?php
 
-require_once '../../includes/db.php';
-require_once '../../includes/sessions.php';
+require_once '../../db.php';
+require_once '../../sessions.php';
 
 header('Content-Type: application/json');
 
@@ -66,7 +66,7 @@ try {
     $filename = "user_" . $user_id . "." . $extension;
 
     $destination =
-        "../../uploads/profile/" . $filename;
+        "../../../uploads/profile/" . $filename;
 
     move_uploaded_file(
         $_FILES['photo']['tmp_name'],

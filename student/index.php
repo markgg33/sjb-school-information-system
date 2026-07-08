@@ -231,7 +231,7 @@ if ($_SESSION['role'] !== 'student') {
     <script src="../student/js/student.js"></script>
     <script src="../student/js/my-grades.js"></script>
     <script src="../student/js/curriculum-progress.js"></script>
-    <script src="js/profile-settings.js"></script>
+    <script src="../includes/profile/js/profile.js"></script>
     <script src="../js/login.js"></script>
 
 </body>

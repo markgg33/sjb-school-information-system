@@ -5,7 +5,7 @@
 function loadProfile() {
   Loader.show("Loading profile...");
 
-  $.getJSON("ajax/get_profile.php", function (profile) {
+  $.getJSON("../includes/profile/ajax/get_profile.php", function (profile) {
     $("#studentNumber").val(profile.student_number);
 
     $("#course").val(profile.course_code + " - " + profile.course_name);
@@ -45,7 +45,7 @@ $(document).on("click", "#saveProfileBtn", function () {
     Loader.show("Saving profile...");
 
     $.ajax({
-      url: "ajax/update_profile.php",
+      url: "../includes/profile/ajax/update_profile.php",
 
       type: "POST",
 
@@ -98,7 +98,7 @@ $(document).on("click", "#saveProfilePhoto", function () {
     formData.append("photo", file);
 
     $.ajax({
-      url: "ajax/upload_profile_photo.php",
+      url: "../includes/profile/ajax/upload_profile_photo.php",
 
       type: "POST",
 
@@ -130,7 +130,6 @@ $(document).on("click", "#saveProfilePhoto", function () {
           $("#profilePhotoPreview").attr("src", newPhoto);
 
           $("#topbarProfilePhoto").attr("src", newPhoto);
-          
         } else {
           Notification.error(response.message);
         }
@@ -180,7 +179,7 @@ $(document).on("click", "#changePasswordBtn", function () {
     Loader.show("Updating password...");
 
     $.ajax({
-      url: "ajax/change_password.php",
+      url: "../includes/profile/ajax/change_password.php",
 
       type: "POST",
 

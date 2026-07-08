@@ -71,44 +71,56 @@ $stmt = $pdo->prepare("
 
 SELECT
 
-es.id AS enrollment_subject_id,
+    es.id AS enrollment_subject_id,
 
-s.student_number,
+    s.student_number,
 
-CONCAT(
+    CONCAT(
 
-s.last_name,
+        s.last_name,
 
-', ',
+        ', ',
 
-s.first_name
+        s.first_name
 
-) AS student_name
+    ) AS student_name
 
 FROM faculty_subjects fs
 
 INNER JOIN enrollments e
 
-ON e.course_id=fs.course_id
-AND e.year_level=fs.year_level
-AND e.school_year=fs.school_year
-AND e.trimester=fs.trimester
+    ON e.course_id = fs.course_id
+    AND e.year_level = fs.year_level
+    AND e.school_year = fs.school_year
+    AND e.trimester = fs.trimester
+
+    AND
+    (
+        (fs.section_id IS NULL AND e.section_id IS NULL)
+
+        OR
+
+        (fs.section_id IS NOT NULL
+            AND e.section_id = fs.section_id)
+    )
 
 INNER JOIN students s
 
-ON s.id=e.student_id
+    ON s.id = e.student_id
 
 INNER JOIN enrollment_subjects es
 
-ON es.enrollment_id=e.id
-AND es.subject_id=fs.subject_id
+    ON es.enrollment_id = e.id
+    AND es.subject_id = fs.subject_id
 
-WHERE fs.id=?
+WHERE
+
+    fs.id = ?
 
 ORDER BY
 
-s.last_name,
-s.first_name
+    s.last_name,
+    s.first_name
 
 ");
 

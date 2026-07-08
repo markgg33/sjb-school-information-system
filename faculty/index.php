@@ -257,7 +257,7 @@ if ($_SESSION['role'] !== 'faculty') {
     <script src="js/faculty.js"></script>
     <script src="js/subjects.js"></script>
     <script src="js/grades.js"></script>
-    <script src="js/profile.js"></script>
+    <script src="../includes/profile/js/profile.js"></script>
 
 </body>
 

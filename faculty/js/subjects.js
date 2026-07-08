@@ -63,15 +63,17 @@ function loadMySubjects() {
 
                 </div>
 
-                <div class="text-muted mt-2">
+<div class="text-muted mt-2">
 
-                    ${subject.course_code}
+    ${subject.course_code}
 
-                    •
+    •
 
-                    Year ${subject.year_level}
+    Year ${subject.year_level}
 
-                </div>
+    ${subject.section_name ? `• ${subject.section_name}` : ""}
+
+</div>
 
                 <div class="text-muted">
 
@@ -107,9 +109,13 @@ function loadMySubjects() {
     data-faculty-subject="${subject.faculty_subject_id}"
 
 data-subject="${subject.subject_id}"
-    data-course="${subject.course_id}"
-    data-year="${subject.year_level}"
-    data-school="${subject.school_year}"
+data-course="${subject.course_id}"
+data-year="${subject.year_level}"
+
+data-section="${subject.section_id}"
+data-section-name="${subject.section_name ?? ""}"
+
+data-school="${subject.school_year}"
     data-trimester="${subject.trimester}"
 
     data-subject-code="${subject.subject_code}"
@@ -192,11 +198,23 @@ function loadSubjectWorkspace() {
 
         </span>
 
-        <span class="badge bg-secondary">
+<span class="badge bg-secondary">
 
-            Year ${workspace.year_level}
+    Year ${workspace.year_level}
 
-        </span>
+</span>
+
+${
+  workspace.section_name
+    ? `
+<span class="badge bg-info">
+
+    ${workspace.section_name}
+
+</span>
+`
+    : ""
+}
 
         <span class="badge bg-success">
 
@@ -234,6 +252,8 @@ $(document).on("click", ".openWorkspaceBtn", function () {
       subject_id: $(this).data("subject"),
       course_id: $(this).data("course"),
       year_level: $(this).data("year"),
+      section_id: $(this).data("section"),
+      section_name: $(this).data("section-name"),
       school_year: $(this).data("school"),
       trimester: $(this).data("trimester"),
 
@@ -308,14 +328,22 @@ $(document).on("click", "#addComponentBtn", function () {
 // WORKSPACE STUDENTS
 //=======================================
 
-function loadWorkspaceStudents() {
+function loadWorkspaceStudents(page = 1) {
   const workspace = JSON.parse(sessionStorage.getItem("facultyWorkspace"));
 
-  $.getJSON("ajax/get_subject_students.php", workspace, function (rows) {
-    let html = "";
+  $.getJSON(
+    "ajax/get_subject_students.php",
+    {
+      ...workspace,
+      page: page,
+    },
+    function (response) {
+      const rows = response.students;
 
-    if (rows.length === 0) {
-      html = `
+      let html = "";
+
+      if (rows.length === 0) {
+        html = `
 
 <div class="dashboard-card text-center py-5">
 
@@ -324,8 +352,8 @@ function loadWorkspaceStudents() {
 </div>
 
 `;
-    } else {
-      html = `
+      } else {
+        html = `
 
 <div class="dashboard-card">
 
@@ -336,16 +364,6 @@ function loadWorkspaceStudents() {
         id="studentSearch"
         class="form-control w-25"
         placeholder="Search student...">
-
-    <button
-        class="btn btn-primary"
-        id="printStudents">
-
-        <i class="fa-solid fa-print me-2"></i>
-
-        Print Class List
-
-    </button>
 
 </div>
 
@@ -375,14 +393,20 @@ function loadWorkspaceStudents() {
 
 `;
 
-      rows.forEach(function (student) {
-        html += `
+        rows.forEach(function (student) {
+          html += `
 
 <tr>
 
 <td>
 
-${student.student_number}
+  ${
+    student.student_number
+      ? student.student_number
+      : `<span class="badge bg-warning text-uppercase">
+            Not Assigned
+         </span>`
+  }
 
 </td>
 
@@ -426,9 +450,9 @@ title="Student Profile">
 </tr>
 
 `;
-      });
+        });
 
-      html += `
+        html += `
 
 </tbody>
 
@@ -436,13 +460,21 @@ title="Student Profile">
 
 </div>
 
+<div
+    id="workspaceStudentPagination"
+    class="d-flex justify-content-center mt-3">
+</div>
+
 </div>
 
 `;
-    }
+      }
 
-    $("#studentsTab").html(html);
-  });
+      $("#studentsTab").html(html);
+
+      renderWorkspaceStudentPagination(response.page, response.total_pages);
+    },
+  );
 }
 
 $(document).on("click", "#backToSubjects", function () {
@@ -450,19 +482,65 @@ $(document).on("click", "#backToSubjects", function () {
 });
 
 //=======================================
+// WORKSPACE STUDENT PAGINATION
+//=======================================
+
+function renderWorkspaceStudentPagination(currentPage, totalPages) {
+  let html = "";
+
+  if (totalPages <= 1) {
+    $("#workspaceStudentPagination").html("");
+
+    return;
+  }
+
+  for (let i = 1; i <= totalPages; i++) {
+    html += `
+<button
+class="btn btn-sm ${
+      i === currentPage ? "btn-primary" : "btn-outline-primary"
+    } workspaceStudentPage mx-1"
+
+data-page="${i}">
+
+${i}
+
+</button>
+`;
+  }
+
+  $("#workspaceStudentPagination").html(html);
+}
+
+$(document).on("click", ".workspaceStudentPage", function () {
+  loadWorkspaceStudents($(this).data("page"));
+});
+
+//=======================================
+// STUDENT SEARCH
+//=======================================
+
+$(document).on("keyup", "#studentSearch", function () {
+  const keyword = $(this).val().toLowerCase();
+
+  $("#studentsTab tbody tr").each(function () {
+    $(this).toggle($(this).text().toLowerCase().includes(keyword));
+  });
+});
+
+//=======================================
 // VIEW STUDENT
 //=======================================
 
 $(document).on("click", ".viewStudentBtn", function () {
-  const id = $(this).data("enrollment");
+  const workspace = JSON.parse(sessionStorage.getItem("facultyWorkspace"));
 
   $("#studentProfileContent").load(
     "ajax/get_student_profile.php",
-
     {
-      enrollment_subject_id: id,
+      enrollment_subject_id: $(this).data("enrollment"),
+      faculty_subject_id: workspace.faculty_subject_id,
     },
-
     function () {
       $("#studentProfileModal").modal("show");
     },
@@ -470,10 +548,10 @@ $(document).on("click", ".viewStudentBtn", function () {
 });
 
 //=======================================
-// PRINT CLASS LIST
+// REPORTS
 //=======================================
 
-$(document).on("click", "#printStudents", function () {
+$(document).on("click", "#printClassList", function () {
   const workspace = JSON.parse(sessionStorage.getItem("facultyWorkspace"));
 
   window.open(
@@ -484,17 +562,53 @@ $(document).on("click", "#printStudents", function () {
   );
 });
 
+$(document).on("click", "#printFinalGrades", function () {
+  const workspace = JSON.parse(sessionStorage.getItem("facultyWorkspace"));
+
+  window.open(
+    "reports/print_final_grades.php?faculty_subject_id=" +
+      workspace.faculty_subject_id,
+
+    "_blank",
+  );
+});
+
+$(document).on("click", "#confirmPrintGradeSheet", function () {
+  const workspace = JSON.parse(sessionStorage.getItem("facultyWorkspace"));
+
+  const period = $("#printGradePeriod").val();
+
+  window.open(
+    "reports/print_grade_sheet.php?" +
+      "faculty_subject_id=" +
+      workspace.faculty_subject_id +
+      "&period=" +
+      encodeURIComponent(period),
+
+    "_blank",
+  );
+
+  $("#printGradeSheetModal").modal("hide");
+});
+
+//=======================================
+// OPEN PRINT MODAL
+//=======================================
+
+$(document).on("click", "#printGradeSheet", function () {
+  const activePeriod = $(".gradingPeriod.active").data("period");
+
+  $("#printGradePeriod").val(activePeriod);
+
+  $("#printGradeSheetModal").modal("show");
+});
+
 //=======================================
 // LOAD GRADEBOOK
 //=======================================
 
 function loadGradebook(period = "Prelim") {
   const workspace = JSON.parse(sessionStorage.getItem("facultyWorkspace"));
-
-  console.log({
-    faculty_subject_id: workspace.faculty_subject_id,
-    period: period,
-  });
 
   $("#gradebookContainer").load("ajax/grading/get_gradebook.php", {
     faculty_subject_id: workspace.faculty_subject_id,
@@ -514,6 +628,7 @@ function loadWorkspaceSummary(period = "Prelim") {
     {
       faculty_subject_id: workspace.faculty_subject_id,
       period: period,
+      section_id: workspace.section_id,
     },
     function (data) {
       $("#workspaceStudentCount").text(data.students || 0);

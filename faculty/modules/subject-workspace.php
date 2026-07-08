@@ -184,6 +184,134 @@
             class="tab-pane fade"
             id="reportsTab">
 
+            <div class="row g-4">
+
+                <div class="col-lg-4">
+
+                    <div class="dashboard-card text-center">
+
+                        <i class="fa-solid fa-users fa-3x text-primary mb-3"></i>
+
+                        <h5>
+
+                            Class List
+
+                        </h5>
+
+                        <p class="text-muted">
+
+                            Official class roster.
+
+                        </p>
+
+                        <button
+                            class="module-action-btn"
+                            id="printClassList">
+
+                            <div class="btn-icon">
+
+                                <i class="fa-solid fa-print"></i>
+
+                            </div>
+
+                            <span>
+
+                                Print
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="col-lg-4">
+
+                    <div class="dashboard-card text-center">
+
+                        <i class="fa-solid fa-table fa-3x text-success mb-3"></i>
+
+                        <h5>
+
+                            Grade Sheet
+
+                        </h5>
+
+                        <p class="text-muted">
+
+                            Blank grading worksheet.
+
+                        </p>
+
+                        <button
+                            class="module-action-btn"
+                            id="printGradeSheet">
+
+                            <div class="btn-icon">
+
+                                <i class="fa-solid fa-print"></i>
+
+                            </div>
+
+                            <span>
+
+                                Print
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="col-lg-4">
+
+                    <div class="dashboard-card text-center">
+
+                        <i class="fa-solid fa-file-lines fa-3x text-warning mb-3"></i>
+
+                        <h5>
+
+                            Final Grade Report
+
+                        </h5>
+
+                        <p class="text-muted">
+
+                            Official submitted grades.
+
+                        </p>
+
+                        <button
+                            class="module-action-btn"
+                            id="printFinalGrades">
+
+                            <div class="btn-icon">
+
+                                <i class="fa-solid fa-print"></i>
+
+                            </div>
+
+                            <span>
+
+                                Print
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>
@@ -362,6 +490,95 @@
                     <div class="spinner-border text-primary"></div>
 
                 </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =======================================
+     PRINT GRADE SHEET MODAL
+======================================= -->
+
+<div class="modal fade" id="printGradeSheetModal" tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    <i class="fa-solid fa-print me-2"></i>
+
+                    Print Grade Sheet
+
+                </h5>
+
+                <button
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <label class="form-label">
+
+                    Select Grading Period
+
+                </label>
+
+                <select
+                    id="printGradePeriod"
+                    class="form-select">
+
+                    <option value="Prelim">
+
+                        Prelim
+
+                    </option>
+
+                    <option value="Midterm">
+
+                        Midterm
+
+                    </option>
+
+                    <option value="Finals">
+
+                        Finals
+
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    class="btn btn-primary"
+                    id="confirmPrintGradeSheet">
+
+                    <i class="fa-solid fa-print me-2"></i>
+
+                    Print
+
+                </button>
 
             </div>
 

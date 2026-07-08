@@ -422,3 +422,84 @@
     </div>
 
 </div>
+
+<!-- ==========================================
+     OFFICIAL GRADE REPORT
+========================================== -->
+
+<div class="modal fade"
+    id="officialGradeModal"
+    tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content modern-modal">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    <i class="fa-solid fa-print me-2"></i>
+
+                    Official Grade Report
+
+                </h5>
+
+                <button
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <input
+                    type="hidden"
+                    id="printStudentId">
+
+                <label class="modern-label">
+
+                    Select Academic Record
+
+                </label>
+
+                <select
+                    id="printEnrollment"
+                    class="form-select modern-input">
+
+                    <option value="">
+
+                        Loading...
+
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="modal-footer border-0">
+
+                <button
+                    class="modal-btn modal-btn-secondary"
+                    data-bs-dismiss="modal">
+
+                    Cancel
+
+                </button>
+
+                <button
+                    class="modal-btn modal-btn-primary"
+                    id="confirmPrintOfficialGrades">
+
+                    Print
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -23,6 +23,8 @@ function loadPage(page) {
       loadDashboardStats();
 
       loadRecentActivity();
+
+      loadDashboardSubjects();
     }
 
     //FOR SUBJECTS

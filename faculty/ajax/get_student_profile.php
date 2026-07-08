@@ -2,7 +2,9 @@
 
 require_once '../../includes/db.php';
 
-$enrollment_subject_id = intval($_REQUEST['enrollment_subject_id'] ?? 0);
+$enrollment_subject_id = (int)($_REQUEST['enrollment_subject_id'] ?? 0);
+
+$faculty_subject_id = (int)($_REQUEST['faculty_subject_id'] ?? 0);
 
 if (!$enrollment_subject_id) {
     exit('<div class="alert alert-danger">Invalid student selected.</div>');
@@ -36,6 +38,14 @@ sub.subject_name,
 e.school_year,
 e.year_level,
 e.trimester,
+e.section_id,
+
+cs.section_name,
+
+s.gender,
+s.email,
+s.contact_number,
+s.address,
 
 g.prelim_grade,
 g.midterm_grade,
@@ -51,6 +61,9 @@ ON s.id = e.student_id
 
 INNER JOIN courses c
 ON c.id = e.course_id
+
+LEFT JOIN course_sections cs
+ON cs.id = e.section_id
 
 INNER JOIN subjects sub
 ON sub.id = es.subject_id
@@ -68,60 +81,6 @@ $student = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$student) {
     exit('<div class="alert alert-warning">Student not found.</div>');
-}
-
-/*
-|--------------------------------------------------------------------------
-| Determine Faculty Subject
-|--------------------------------------------------------------------------
-*/
-
-$stmt = $pdo->prepare("
-
-SELECT
-
-fs.id
-
-FROM enrollment_subjects es
-
-INNER JOIN enrollments e
-ON e.id = es.enrollment_id
-
-INNER JOIN faculty_subjects fs
-
-ON fs.subject_id = es.subject_id
-
-AND fs.course_id = e.course_id
-
-AND fs.year_level = e.year_level
-
-AND fs.school_year = e.school_year
-
-AND fs.trimester = e.trimester
-
-WHERE es.id = ?
-
-LIMIT 1
-
-");
-
-$stmt->execute([
-    $enrollment_subject_id
-]);
-
-$faculty_subject_id = $stmt->fetchColumn();
-
-if (!$faculty_subject_id) {
-
-    echo '
-
-    <div class="alert alert-warning">
-
-        No faculty assignment found for this student.
-
-    </div>';
-
-    exit;
 }
 
 /*
@@ -188,67 +147,171 @@ $components = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <div class="dashboard-card h-100">
 
-                <div class="text-center">
+                <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
 
-                    <i class="fa-solid fa-user-graduate fa-5x text-primary mb-3"></i>
+                    <div class="me-4 text-center">
 
-                    <h4>
+                        <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center"
 
-                        <?= htmlspecialchars($student['student_name']) ?>
+                            style="width:90px;height:90px;">
 
-                    </h4>
+                            <i class="fa-solid fa-user-graduate fa-3x text-primary"></i>
 
-                    <div class="text-muted">
-
-                        <?= htmlspecialchars($student['student_number']) ?>
-
-                    </div>
-
-                    <hr>
-
-                    <div class="mb-2">
-
-                        <strong>Course</strong><br>
-
-                        <?= htmlspecialchars($student['course_code']) ?>
-
-                    </div>
-
-                    <div class="mb-2">
-
-                        <strong>Subject</strong><br>
-
-                        <?= htmlspecialchars($student['subject_code']) ?>
-
-                        <br>
-
-                        <?= htmlspecialchars($student['subject_name']) ?>
-
-                    </div>
-
-                    <div class="mb-2">
-
-                        <strong>School Year</strong><br>
-
-                        <?= htmlspecialchars($student['school_year']) ?>
+                        </div>
 
                     </div>
 
                     <div>
 
-                        Year <?= $student['year_level'] ?>
+                        <h3 class="mb-1 fw-bold">
 
-                        •
+                            <?= htmlspecialchars($student['student_name']) ?>
 
-                        Trimester <?= $student['trimester'] ?>
+                        </h3>
+
+                        <div class="text-muted">
+
+                            <span class="badge bg-primary">
+
+                                <?= htmlspecialchars($student['student_number']) ?>
+
+                            </span>
+
+                        </div>
 
                     </div>
 
                 </div>
 
-            </div>
+                <div class="row g-3">
 
-        </div>
+                    <div class="col-6">
+
+                        <small class="text-uppercase text-secondary fw-semibold">
+                            Course
+                        </small>
+
+                        <div class="fw-semibold">
+                            <?= htmlspecialchars($student['course_code']) ?>
+                        </div>
+
+                    </div>
+
+                    <div class="col-6">
+
+                        <small class="text-uppercase text-secondary fw-semibold">
+                            Section
+                        </small>
+
+                        <div class="fw-semibold">
+                            <?= htmlspecialchars($student['section_name'] ?? '--') ?>
+                        </div>
+
+                    </div>
+
+                    <div class="col-6">
+
+                        <small class="text-uppercase text-secondary fw-semibold">
+                            Year Level
+                        </small>
+
+                        <div class="fw-semibold">
+                            <?= $student['year_level'] ?>
+                        </div>
+
+                    </div>
+
+                    <div class="col-6">
+
+                        <small class="text-uppercase text-secondary fw-semibold">
+                            Trimester
+                        </small>
+
+                        <div class="fw-semibold">
+                            <?= $student['trimester'] ?>
+                        </div>
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <small class="text-uppercase text-secondary fw-semibold">
+                            School Year
+                        </small>
+
+                        <div class="fw-semibold">
+                            <?= htmlspecialchars($student['school_year']) ?>
+                        </div>
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <small class="text-uppercase text-secondary fw-semibold">
+                            Subject
+                        </small>
+
+                        <div class="fw-semibold">
+                            <?= htmlspecialchars($student['subject_code']) ?>
+                            —
+                            <?= htmlspecialchars($student['subject_name']) ?>
+                        </div>
+
+                    </div>
+
+                    <div class="col-6">
+
+                        <small class="text-uppercase text-secondary fw-semibold">
+                            Gender
+                        </small>
+
+                        <div class="fw-semibold">
+                            <?= htmlspecialchars($student['gender'] ?? '--') ?>
+                        </div>
+
+                    </div>
+
+                    <div class="col-6">
+
+                        <small class="text-uppercase text-secondary fw-semibold">
+                            Contact Number
+                        </small>
+
+                        <div class="fw-semibold">
+                            <?= htmlspecialchars($student['contact_number'] ?? '--') ?>
+                        </div>
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <small class="text-uppercase text-secondary fw-semibold">
+                            Email Address
+                        </small>
+
+                        <div class="fw-semibold text-break">
+                            <?= htmlspecialchars($student['email'] ?? '--') ?>
+                        </div>
+
+                    </div>
+
+                    <div class="col-12">
+
+                        <small class="text-uppercase text-secondary fw-semibold">
+                            Address
+                        </small>
+
+                        <div class="fw-semibold">
+                            <?= htmlspecialchars($student['address'] ?? '--') ?>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div> <!-- dashboard-card -->
+
+        </div> <!-- col-lg-4 -->
 
         <div class="col-lg-8">
 
@@ -260,7 +323,7 @@ $components = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 </h5>
 
-                <div class="alert alert-primary mt-4">
+                <div class="alert alert-primary mt-4 mb-3">
 
                     <strong>
 
@@ -287,21 +350,33 @@ $components = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     ?>
 
-                    Current Subject Grade:
+                    <div class="alert alert-primary d-flex justify-content-between align-items-center">
 
-                    <span class="fw-bold">
+                        <div>
 
-                        <?= $latest ?>
+                            <strong>
 
-                    </span>
+                                Current Subject Grade
+
+                            </strong>
+
+                        </div>
+
+                        <h3 class="mb-0">
+
+                            <?= $latest ?>
+
+                        </h3>
+
+                    </div>
 
                 </div>
 
-                <div class="row text-center">
+                <div class="row g-3 mt-2">
 
                     <div class="col">
 
-                        <div class="border rounded p-3">
+                        <div class="dashboard-card text-center h-100">
 
                             <div class="small text-muted">
 
@@ -321,7 +396,7 @@ $components = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <div class="col">
 
-                        <div class="border rounded p-3">
+                        <div class="dashboard-card text-center h-100">
 
                             <div class="small text-muted">
 
@@ -341,7 +416,7 @@ $components = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <div class="col">
 
-                        <div class="border rounded p-3">
+                        <div class="dashboard-card text-center h-100">
 
                             <div class="small text-muted">
 
@@ -371,9 +446,9 @@ $components = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 <div class="table-responsive">
 
-                    <table class="table table-hover align-middle">
+                    <table class="table table-striped table-hover align-middle">
 
-                        <thead>
+                        <thead class="table-light">
 
                             <tr>
 

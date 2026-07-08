@@ -71,7 +71,7 @@ switch ($user['role']) {
                 trim(
                     $row['first_name'] . ' ' .
                         ($row['middle_name']
-                            ? $row['middle_name'] . ' '
+                            ? strtoupper(substr($row['middle_name'], 0, 1)) . '. '
                             : '') .
                         $row['last_name']
                 );
@@ -99,7 +99,7 @@ switch ($user['role']) {
                 trim(
                     $row['first_name'] . ' ' .
                         ($row['middle_name']
-                            ? $row['middle_name'] . ' '
+                            ? strtoupper(substr($row['middle_name'], 0, 1)) . '. '
                             : '') .
                         $row['last_name']
                 );
@@ -113,12 +113,11 @@ switch ($user['role']) {
 
             $displayName =
                 trim(
-                    $user['last_name']
-                        . ' ' .
+                    $user['first_name'] . ' ' .
                         ($user['middle_name']
-                            ? $user['middle_name'] . ' '
+                            ? strtoupper(substr($user['middle_name'], 0, 1)) . '. '
                             : '') .
-                        $user['first_name']
+                        $user['last_name']
                 );
         }
 

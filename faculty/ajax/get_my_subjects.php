@@ -13,6 +13,7 @@ SELECT
     fs.subject_id,
     fs.course_id,
     fs.year_level,
+    fs.section_id,
     fs.school_year,
     fs.trimester,
 
@@ -21,6 +22,9 @@ SELECT
 
     c.course_code,
     c.course_name,
+
+
+    cs.section_name,
 
     COUNT(DISTINCT e.student_id) AS students
 
@@ -35,6 +39,9 @@ INNER JOIN subjects s
 INNER JOIN courses c
     ON c.id = fs.course_id
 
+LEFT JOIN course_sections cs
+    ON cs.id = fs.section_id
+
 LEFT JOIN enrollment_subjects es
     ON es.subject_id = fs.subject_id
 
@@ -44,6 +51,11 @@ LEFT JOIN enrollments e
     AND e.year_level = fs.year_level
     AND e.school_year = fs.school_year
     AND e.trimester = fs.trimester
+    AND (
+        (fs.section_id IS NULL AND e.section_id IS NULL)
+        OR
+        fs.section_id = e.section_id
+    )
 
 WHERE
 
@@ -56,6 +68,7 @@ GROUP BY
     fs.subject_id,
     fs.course_id,
     fs.year_level,
+    fs.section_id,
     fs.school_year,
     fs.trimester,
 
@@ -63,12 +76,15 @@ GROUP BY
     s.subject_name,
 
     c.course_code,
-    c.course_name
+    c.course_name,
+
+    cs.section_name
 
 ORDER BY
 
     c.course_code,
     fs.year_level,
+    cs.section_name,
     s.subject_code
 ");
 

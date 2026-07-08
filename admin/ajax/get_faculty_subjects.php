@@ -14,33 +14,41 @@ $course_id = (int)($_GET['course_id'] ?? 0);
 
 $year_level = (int)($_GET['year_level'] ?? 0);
 
-$stmt = $pdo->prepare("
-SELECT
+$section_id = !empty($_GET['section_id'])
+    ? (int)$_GET['section_id']
+    : null;
 
-    subject_id
-
+$sql = "
+SELECT subject_id
 FROM faculty_subjects
-
 WHERE
-
     faculty_id = ?
-
 AND school_year = ?
-
 AND trimester = ?
-
 AND course_id = ?
-
 AND year_level = ?
-");
+";
 
-$stmt->execute([
+$params = [
     $faculty_id,
     $school_year,
     $trimester,
     $course_id,
     $year_level
-]);
+];
+
+if ($section_id === null) {
+
+    $sql .= " AND section_id IS NULL";
+} else {
+
+    $sql .= " AND section_id = ?";
+    $params[] = $section_id;
+}
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+
 
 echo json_encode(
     $stmt->fetchAll(PDO::FETCH_COLUMN)

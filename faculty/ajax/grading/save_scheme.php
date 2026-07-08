@@ -1,6 +1,8 @@
 <?php
 
 require_once '../../../includes/db.php';
+require_once '../../../includes/sessions.php';
+require_once '../../../includes/activity_logger.php';
 
 header('Content-Type: application/json');
 
@@ -177,6 +179,14 @@ try {
     ]);
 
     $pdo->commit();
+
+    logActivity(
+        $_SESSION['user_id'],
+        $_SESSION['role'],
+        'Added Grading Component',
+        "{$period}: {$name} ({$type})",
+        $scheme_id
+    );
 
     echo json_encode([
         "success" => true

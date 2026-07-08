@@ -1,7 +1,7 @@
 <?php
 
-require_once '../../includes/db.php';
-require_once '../../includes/sessions.php';
+require_once '../../db.php';
+require_once '../../sessions.php';
 
 header('Content-Type: application/json');
 
@@ -22,15 +22,30 @@ try {
     }
 
     //====================================
+    // GET USER ROLE
+    //====================================
+
+    $stmt = $pdo->prepare("
+SELECT role
+FROM users
+WHERE id=?
+");
+
+    $stmt->execute([$user_id]);
+
+    $role = $stmt->fetchColumn();
+
+
+    //====================================
     // CHECK DUPLICATE EMAIL
     //====================================
 
     $stmt = $pdo->prepare("
-        SELECT id
-        FROM users
-        WHERE email = ?
-        AND id <> ?
-    ");
+SELECT id
+FROM users
+WHERE email=?
+AND id<>?
+");
 
     $stmt->execute([
         $email,
@@ -47,17 +62,17 @@ try {
     $pdo->beginTransaction();
 
     //====================================
-    // UPDATE USERS
+    // UPDATE ACCOUNT
     //====================================
 
     $pdo->prepare("
-    UPDATE users
-    SET
-        email=?,
-        first_name=?,
-        middle_name=?,
-        last_name=?
-    WHERE id=?
+UPDATE users
+SET
+    email=?,
+    first_name=?,
+    middle_name=?,
+    last_name=?
+WHERE id=?
 ")->execute([
         $email,
         $first_name,
@@ -65,6 +80,59 @@ try {
         $last_name,
         $user_id
     ]);
+
+
+    //====================================
+    // UPDATE PROFILE
+    //====================================
+
+    switch ($role) {
+
+        case 'faculty':
+
+            $pdo->prepare("
+        UPDATE faculty
+        SET
+            email=?,
+            first_name=?,
+            middle_name=?,
+            last_name=?
+        WHERE user_id=?
+        ")->execute([
+                $email,
+                $first_name,
+                $middle_name,
+                $last_name,
+                $user_id
+            ]);
+
+            break;
+
+
+        case 'student':
+
+            $pdo->prepare("
+        UPDATE students
+        SET
+            email=?,
+            first_name=?,
+            middle_name=?,
+            last_name=?
+        WHERE user_id=?
+        ")->execute([
+                $email,
+                $first_name,
+                $middle_name,
+                $last_name,
+                $user_id
+            ]);
+
+            break;
+
+        case 'admin':
+            // Nothing else to update.
+            break;
+    }
 
     $pdo->commit();
 

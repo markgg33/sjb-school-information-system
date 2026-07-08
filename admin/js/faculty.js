@@ -18,9 +18,9 @@ function getAssignmentContextKey() {
 
   const section = $("#assignmentSection").val();
 
-  if (!section) {
+  /*if (!section) {
     return null;
-  }
+  }*/
 
   return `${facultyId}|${schoolYear}|${trimester}|${course}|${year}|${section}`;
 }
@@ -56,7 +56,7 @@ function getPendingFacultyAssignments() {
 
       year_level: yearLevel,
 
-      section_id: sectionId,
+      section_id: sectionId === "NULL" ? null : sectionId,
 
       subjects: facultySubjectSelectionsCache[key],
     });
@@ -520,7 +520,7 @@ function loadAssignmentSubjects() {
       course_id: course,
       year_level: year,
       trimester: trimester,
-      section_id: $("#assignmentSection").val(),
+      section_id: $("#assignmentSection").val() || "",
     }),
 
     $.getJSON("ajax/get_faculty_subjects.php", {
@@ -529,6 +529,7 @@ function loadAssignmentSubjects() {
       trimester: trimester,
       course_id: course,
       year_level: year,
+      section_id: $("#assignmentSection").val() || "",
     }),
   )
     .done(function (subjectResponse, assignedResponse) {
@@ -783,6 +784,13 @@ $(document).on("click", "#saveSubjectAssignmentBtn", function () {
   }
 
   if (!assignments.length) {
+    AlertService.warning(
+      "Please select at least one course, year level, and section.",
+    );
+    return;
+  }
+
+  /*if (!assignments.length) {
     AlertService.warning("Please select a course and assign subjects.");
     return;
   }
@@ -790,7 +798,7 @@ $(document).on("click", "#saveSubjectAssignmentBtn", function () {
   if (countPendingFacultySubjects(assignments) === 0) {
     AlertService.warning("Please assign at least one subject.");
     return;
-  }
+  }*/
 
   AlertService.saveConfirm("subject assignment").then(function (result) {
     if (!result.isConfirmed) return;
@@ -866,28 +874,36 @@ function loadTeachingLoad() {
       } else {
         let currentCourse = "";
         let currentYear = "";
+        let currentSection = "";
 
         rows.forEach(function (row) {
           if (
             currentCourse !== row.course_code ||
-            currentYear !== row.year_level
+            currentYear !== row.year_level ||
+            currentSection !== row.section_name
           ) {
             currentCourse = row.course_code;
             currentYear = row.year_level;
+            currentSection = row.section_name ?? "No Section";
 
             html += `
 
-            <div class="mt-3 fw-bold text-primary">
+<div class="mt-3 fw-bold text-primary">
 
-                ${currentCourse}
+    ${currentCourse}
+    • Year ${currentYear}
 
-                •
+    <br>
 
-                Year ${currentYear}
+    <small class="text-secondary">
 
-            </div>
+        ${currentSection}
 
-        `;
+    </small>
+
+</div>
+
+`;
           }
 
           html += `

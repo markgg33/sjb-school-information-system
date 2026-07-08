@@ -1,0 +1,21 @@
+Array
+(
+    [student_id] => 5
+    [enrollment_id] => 
+    [school_year] => 2026-2027
+    [year_level] => 1
+    [section_id] => 3
+    [trimester] => 1
+    [subject_ids] => Array
+        (
+            [0] => 12
+            [1] => 10
+            [2] => 11
+            [3] => 15
+            [4] => 13
+            [5] => 14
+            [6] => 16
+            [7] => 17
+        )
+
+)

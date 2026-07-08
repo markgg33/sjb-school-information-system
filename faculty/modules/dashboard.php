@@ -108,13 +108,13 @@
 
                 <h6>
 
-                    Pending Grades
+                    Grade Progress
 
                 </h6>
 
-                <h2 id="pendingGrades">
+                <h2>
 
-                    0
+                    <span id="gradeProgress">0</span>%
 
                 </h2>
 
@@ -238,6 +238,18 @@
 
             </div>
 
+            <div class="dashboard-card mt-4">
+
+                <h5 class="mb-3">
+
+                    My Subjects
+
+                </h5>
+
+                <div id="dashboardSubjects"></div>
+
+            </div>
+
         </div>
 
         <div class="col-lg-7">
@@ -250,7 +262,7 @@
 
                 </h5>
 
-                <div id="recentActivity">
+                <div id="recentActivity" class="activity-list">
 
                     <div class="text-muted">
 

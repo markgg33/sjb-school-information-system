@@ -2,23 +2,27 @@
 // TOGGLE PASSWORD
 //=======================================
 
-function togglePassword(inputId, button) {
+function togglePassword(inputId = "password", button = null) {
   const input = document.getElementById(inputId);
+
+  if (!input) return;
+
+  if (!button) {
+    button = input.parentElement.querySelector(".password-toggle");
+  }
+
+  if (!button) return;
 
   const icon = button.querySelector("i");
 
   if (input.type === "password") {
     input.type = "text";
 
-    icon.classList.remove("fa-eye");
-
-    icon.classList.add("fa-eye-slash");
+    icon.classList.replace("fa-eye", "fa-eye-slash");
   } else {
     input.type = "password";
 
-    icon.classList.remove("fa-eye-slash");
-
-    icon.classList.add("fa-eye");
+    icon.classList.replace("fa-eye-slash", "fa-eye");
   }
 }
 //=======================================

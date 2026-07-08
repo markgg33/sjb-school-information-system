@@ -171,20 +171,29 @@ function loadStudents(page = 1) {
 <td>
 
 <button
-  class="btn btn-sm btn-outline-primary editStudentBtn"
-  data-id="${student.id}"
-  title="Edit Student">
+    class="btn btn-sm btn-outline-primary editStudentBtn"
+    data-id="${student.id}"
+    title="Edit Student">
 
-  <i class="fa-solid fa-pencil"></i>
+    <i class="fa-solid fa-pencil"></i>
 
 </button>
 
 <button
-  class="btn btn-sm btn-outline-warning resetPasswordBtn"
-  data-id="${student.id}"
-  title="Reset Password">
+    class="btn btn-sm btn-outline-success printOfficialGradesBtn"
+    data-id="${student.id}"
+    title="Print Official Grades">
 
-  <i class="fa-solid fa-key"></i>
+    <i class="fa-solid fa-print"></i>
+
+</button>
+
+<button
+    class="btn btn-sm btn-outline-warning resetPasswordBtn"
+    data-id="${student.id}"
+    title="Reset Password">
+
+    <i class="fa-solid fa-key"></i>
 
 </button>
 
@@ -360,3 +369,85 @@ $(document).on("click", "#saveStudentBtn", function () {
     },
   });
 });
+
+//=======================================
+// OFFICIAL GRADE REPORT
+//=======================================
+
+$(document).on("click", ".printOfficialGradesBtn", function () {
+  const studentId = $(this).data("id");
+
+  $("#printStudentId").val(studentId);
+
+  Loader.show("Loading academic records...");
+
+  $.getJSON(
+    "ajax/get_student_enrollments.php",
+
+    {
+      student_id: studentId,
+    },
+
+    function (rows) {
+      let html = '<option value="">Select Academic Record</option>';
+
+      rows.forEach(function (row) {
+        html += `
+
+<option value="${row.enrollment_id}">
+
+${row.school_year}
+
+•
+
+Trimester ${row.trimester}
+
+•
+
+${row.course_code}
+
+•
+
+Year ${row.year_level}
+
+${row.section_name ? ` • ${row.section_name}` : ""}
+
+</option>
+
+`;
+      });
+
+      $("#printEnrollment").html(html);
+
+      new bootstrap.Modal(document.getElementById("officialGradeModal")).show();
+    },
+  ).always(function () {
+    Loader.hide();
+  });
+});
+
+//=======================================
+// PRINT BUTTON
+//=======================================
+
+$(document).on(
+  "click",
+
+  "#confirmPrintOfficialGrades",
+
+  function () {
+    const enrollment = $("#printEnrollment").val();
+
+    if (!enrollment) {
+      Notification.warning("Please select an academic record.");
+
+      return;
+    }
+
+    window.open(
+      "reports/print_official_grade.php?enrollment_id=" + enrollment,
+
+      "_blank",
+    );
+  },
+);

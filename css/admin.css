@@ -76,6 +76,14 @@
   background: var(--body-bg);
 }
 
+#dashboardSubjects {
+  max-height: 340px;
+
+  overflow-y: auto;
+
+  padding-right: 6px;
+}
+
 /* =======================================================
    SIDEBAR
 ======================================================= */
@@ -912,15 +920,34 @@
 .workspace-tab:hover {
   transform: translateY(-2px);
 
-  color: var( --sjb-primary);
+  color: var(--sjb-primary);
 }
 
 .workspace-tab.active {
-  background: linear-gradient(135deg, var( --sjb-primary), #4f8cff);
+  background: linear-gradient(135deg, var(--sjb-primary), #4f8cff);
 
   color: #fff;
 
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15);
+}
+
+/* =======================================================
+   ACTIVITY
+======================================================= */
+
+.activity-list {
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.activity-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.activity-list::-webkit-scrollbar-thumb {
+  background: #c7c7c7;
+  border-radius: 10px;
 }
 
 /* =======================================================

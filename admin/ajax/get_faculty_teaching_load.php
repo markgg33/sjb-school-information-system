@@ -18,6 +18,8 @@ SELECT
 
     fs.year_level,
 
+    cs.section_name,
+
     s.subject_code,
 
     s.subject_name,
@@ -32,6 +34,9 @@ INNER JOIN courses c
 INNER JOIN subjects s
     ON s.id = fs.subject_id
 
+LEFT JOIN course_sections cs
+ON cs.id = fs.section_id
+
 WHERE
 
     fs.faculty_id = ?
@@ -45,6 +50,8 @@ ORDER BY
     c.course_code,
 
     fs.year_level,
+
+    cs.section_name,
 
     s.subject_code
 

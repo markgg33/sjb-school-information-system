@@ -93,8 +93,10 @@
 
                             <span
                                 class="input-group-text password-toggle"
-                                onclick="togglePassword()">
-                                <i id="passwordIcon" class="fa-solid fa-eye"></i>
+                                onclick="togglePassword('password', this)">
+
+                                <i class="fa-solid fa-eye"></i>
+
                             </span>
 
                         </div>

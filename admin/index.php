@@ -264,7 +264,7 @@ if ($_SESSION['role'] !== 'admin') {
     <script src="js/subjects.js"></script>
     <script src="js/faculty.js"></script>
     <script src="js/enrollment.js"></script>
-    <script src="js/profile.js"></script>
+    <script src="../includes/profile/js/profile.js"></script>
 
 
 </body>
