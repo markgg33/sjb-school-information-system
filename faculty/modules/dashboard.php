@@ -126,16 +126,30 @@
 
     <div class="row g-4">
 
-        <!-- LEFT -->
-        <div class="col-lg-7">
+        <!-- MAIN CONTENT -->
+        <div class="col-xl-8 col-lg-7">
 
             <div class="dashboard-card">
 
-                <h5 class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-4">
 
-                    My Subjects
+                    <div>
 
-                </h5>
+                        <h4 class="mb-1">
+
+                            My Subjects
+
+                        </h4>
+
+                        <small class="text-muted">
+
+                            Select a subject to open your teaching workspace.
+
+                        </small>
+
+                    </div>
+
+                </div>
 
                 <div
                     id="dashboardSubjects"
@@ -147,118 +161,8 @@
 
         </div>
 
-        <!-- RIGHT -->
-        <div class="col-lg-5">
-
-            <div class="dashboard-card mb-4">
-
-                <h5 class="mb-3">
-
-                    Quick Actions
-
-                </h5>
-
-                <div class="quick-actions">
-
-                    <div
-                        class="action-card dashboardAction"
-                        data-page="grades">
-
-                        <i class="fa-solid fa-pen"></i>
-
-                        <div>
-
-                            <h6>
-
-                                Encode Grades
-
-                            </h6>
-
-                            <small>
-
-                                Manage student grades
-
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                    <div
-                        class="action-card dashboardAction"
-                        data-page="students">
-
-                        <i class="fa-solid fa-users"></i>
-
-                        <div>
-
-                            <h6>
-
-                                Student List
-
-                            </h6>
-
-                            <small>
-
-                                View enrolled students
-
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                    <div
-                        class="action-card"
-                        id="printClassList">
-
-                        <i class="fa-solid fa-print"></i>
-
-                        <div>
-
-                            <h6>
-
-                                Print Class List
-
-                            </h6>
-
-                            <small>
-
-                                Generate printable class list
-
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                    <div
-                        class="action-card"
-                        id="printGradeSheet">
-
-                        <i class="fa-solid fa-file-lines"></i>
-
-                        <div>
-
-                            <h6>
-
-                                Print Grade Sheet
-
-                            </h6>
-
-                            <small>
-
-                                Printable grading form
-
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
+        <!-- SIDEBAR -->
+        <div class="col-xl-4 col-lg-5">
 
             <div class="dashboard-card">
 
@@ -279,5 +183,4 @@
         </div>
 
     </div>
-
 </div>

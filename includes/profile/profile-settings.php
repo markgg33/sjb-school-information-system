@@ -65,11 +65,7 @@
 
                         <div class="col-md-4">
 
-                            <label class="modern-label">
-
-                                First Name
-
-                            </label>
+                            <label class="modern-label">First Name</label>
 
                             <input
                                 id="firstName"
@@ -80,11 +76,7 @@
 
                         <div class="col-md-4">
 
-                            <label class="modern-label">
-
-                                Middle Name
-
-                            </label>
+                            <label class="modern-label">Middle Name</label>
 
                             <input
                                 id="middleName"
@@ -95,11 +87,7 @@
 
                         <div class="col-md-4">
 
-                            <label class="modern-label">
-
-                                Last Name
-
-                            </label>
+                            <label class="modern-label">Last Name</label>
 
                             <input
                                 id="lastName"
@@ -108,18 +96,49 @@
 
                         </div>
 
-                        <div class="col-md-12">
+                        <div class="col-md-6">
 
-                            <label class="modern-label">
-
-                                Email
-
-                            </label>
+                            <label class="modern-label">Email</label>
 
                             <input
+                                type="email"
                                 id="email"
                                 name="email"
                                 class="form-control modern-input">
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="modern-label">Mobile Number</label>
+
+                            <input
+                                id="contactNumber"
+                                name="contact_number"
+                                class="form-control modern-input">
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="modern-label">Birthday</label>
+
+                            <input
+                                type="date"
+                                id="birthDate"
+                                name="birth_date"
+                                class="form-control modern-input">
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label class="modern-label">Address</label>
+
+                            <textarea
+                                id="address"
+                                name="address"
+                                class="form-control modern-input"></textarea>
 
                         </div>
 

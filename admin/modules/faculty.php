@@ -254,6 +254,19 @@
 
                         </div>
 
+                        <div class="col-md-6">
+
+                            <label class="modern-label">
+                                Birthday
+                            </label>
+
+                            <input
+                                type="date"
+                                name="birth_date"
+                                class="form-control modern-input">
+
+                        </div>
+
                         <div class="col-12">
 
                             <label class="modern-label">
@@ -312,6 +325,19 @@
                                 type="text"
                                 name="contact_number"
                                 class="form-control modern-input">
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <label class="modern-label">
+                                Address
+                            </label>
+
+                            <textarea
+                                name="address"
+                                rows="3"
+                                class="form-control modern-input"></textarea>
 
                         </div>
 

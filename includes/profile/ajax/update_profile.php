@@ -17,6 +17,12 @@ try {
 
     $last_name = trim($_POST['last_name'] ?? '');
 
+    $contact_number = trim($_POST['contact_number'] ?? '');
+
+    $address = trim($_POST['address'] ?? '');
+
+    $birth_date = $_POST['birth_date'] ?? null;
+
     if ($email == '') {
         throw new Exception("Email is required.");
     }
@@ -88,26 +94,78 @@ WHERE id=?
 
     switch ($role) {
 
-        case 'faculty':
+        case 'admin':
 
-            $pdo->prepare("
-        UPDATE faculty
-        SET
-            email=?,
-            first_name=?,
-            middle_name=?,
-            last_name=?
+            //====================================
+            // CHECK IF ADMIN PROFILE EXISTS
+            //====================================
+
+            $check = $pdo->prepare("
+        SELECT id
+        FROM admins
         WHERE user_id=?
+    ");
+
+            $check->execute([$user_id]);
+
+            if ($check->fetch()) {
+
+                //====================================
+                // UPDATE EXISTING ADMIN
+                //====================================
+
+                $pdo->prepare("
+            UPDATE admins
+            SET
+                first_name=?,
+                middle_name=?,
+                last_name=?,
+                contact_number=?,
+                address=?,
+                birth_date=?
+            WHERE user_id=?
         ")->execute([
-                $email,
-                $first_name,
-                $middle_name,
-                $last_name,
-                $user_id
-            ]);
+                    $first_name,
+                    $middle_name,
+                    $last_name,
+                    $contact_number,
+                    $address,
+                    $birth_date,
+                    $user_id
+                ]);
+            } else {
+
+                //====================================
+                // CREATE ADMIN PROFILE
+                //====================================
+
+                $pdo->prepare("
+            INSERT INTO admins
+            (
+                user_id,
+                first_name,
+                middle_name,
+                last_name,
+                contact_number,
+                address,
+                birth_date
+            )
+            VALUES
+            (
+                ?,?,?,?,?,?,?
+            )
+        ")->execute([
+                    $user_id,
+                    $first_name,
+                    $middle_name,
+                    $last_name,
+                    $contact_number,
+                    $address,
+                    $birth_date
+                ]);
+            }
 
             break;
-
 
         case 'student':
 
@@ -116,21 +174,23 @@ WHERE id=?
         SET
             email=?,
             first_name=?,
-            middle_name=?,
-            last_name=?
+            middle_name=?,  
+            last_name=?,
+            contact_number=?,
+            address=?,
+            birth_date=?
         WHERE user_id=?
         ")->execute([
                 $email,
                 $first_name,
                 $middle_name,
                 $last_name,
+                $contact_number,
+                $address,
+                $birth_date,
                 $user_id
             ]);
 
-            break;
-
-        case 'admin':
-            // Nothing else to update.
             break;
     }
 

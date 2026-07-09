@@ -20,6 +20,8 @@ function loadProfile() {
 
     $("#contactNumber").val(profile.contact_number ?? "");
 
+    $("#birthDate").val(profile.birth_date ?? "");
+
     $("#address").val(profile.address ?? "");
 
     const photo = profile.photo

@@ -29,6 +29,9 @@ try {
     $address = trim($_POST['address'] ?? '');
     $address = $address !== '' ? $address : null;
 
+    $birth_date = trim($_POST['birth_date'] ?? '');
+    $birth_date = $birth_date !== '' ? $birth_date : null;
+
     $status = $_POST['status'] ?? 'active';
 
     $courses = $_POST['courses'] ?? [];
@@ -115,18 +118,19 @@ try {
     if (!empty($id)) {
 
         $stmt = $pdo->prepare("
-            UPDATE faculty
-            SET
-                employee_number=?,
-                email=?,
-                first_name=?,
-                middle_name=?,
-                last_name=?,
-                gender=?,
-                contact_number=?,
-                address=?,
-                status=?
-            WHERE id=?
+UPDATE faculty
+SET
+    employee_number=?,
+    email=?,
+    first_name=?,
+    middle_name=?,
+    last_name=?,
+    gender=?,
+    birth_date=?,
+    contact_number=?,
+    address=?,
+    status=?
+WHERE id=?
         ");
 
         $stmt->execute([
@@ -136,6 +140,7 @@ try {
             $middle_name,
             $last_name,
             $gender,
+            $birth_date,
             $contact_number,
             $address,
             $status,
@@ -205,21 +210,22 @@ try {
 
         $stmt = $pdo->prepare("
             INSERT INTO faculty
-            (
-                user_id,
-                employee_number,
-                email,
-                first_name,
-                middle_name,
-                last_name,
-                gender,
-                contact_number,
-                address,
-                status
-            )
+(
+user_id,
+employee_number,
+email,
+first_name,
+middle_name,
+last_name,
+gender,
+birth_date,
+contact_number,
+address,
+status
+)
             VALUES
             (
-                ?,?,?,?,?,?,?,?,?,?
+                ?,?,?,?,?,?,?,?,?,?,?
             )
         ");
 
@@ -231,6 +237,7 @@ try {
             $middle_name,
             $last_name,
             $gender,
+            $birth_date,
             $contact_number,
             $address,
             $status

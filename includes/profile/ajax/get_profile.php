@@ -42,13 +42,16 @@ if (!$user) {
 if ($user['role'] === 'admin') {
 
     $stmt = $pdo->prepare("
-    SELECT
-        first_name,
-        middle_name,
-        last_name
-    FROM users
-    WHERE id=?
-    ");
+SELECT
+first_name,
+middle_name,
+last_name,
+contact_number,
+address,
+birth_date
+FROM admins
+WHERE user_id=?
+");
 
     $stmt->execute([$user_id]);
 
@@ -62,16 +65,17 @@ if ($user['role'] === 'admin') {
 */ elseif ($user['role'] === 'faculty') {
 
     $stmt = $pdo->prepare("
-    SELECT
+SELECT
 
-        employee_number,
+employee_number,
 
-        first_name,
-        middle_name,
-        last_name,
+first_name,
+middle_name,
+last_name,
 
-        contact_number,
-        address
+birth_date,
+contact_number,
+address
 
     FROM faculty
 
@@ -90,19 +94,20 @@ if ($user['role'] === 'admin') {
 */ else {
 
     $stmt = $pdo->prepare("
-    SELECT
+ SELECT
 
-        student_number,
+student_number,
 
-        c.course_code,
-        c.course_name,
+c.course_code,
+c.course_name,
 
-        first_name,
-        middle_name,
-        last_name,
+first_name,
+middle_name,
+last_name,
 
-        contact_number,
-        address
+birth_date,
+contact_number,
+address
 
     FROM students s
 
