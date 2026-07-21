@@ -21,7 +21,6 @@ function loadPage(page) {
     //FOR DASHBOARD
     if (page === "dashboard") {
       loadDashboardStats();
-      loadRecentEnrollments();
     }
     //FOR COURSES
     if (page === "courses") {
@@ -70,6 +69,76 @@ function loadPage(page) {
     if (page === "enrollment-details") {
       loadEnrollmentDetails();
     }
+
+    if (page === "system-settings") {
+      loadRecentActivity();
+    }
+  });
+}
+
+//=======================================
+// RECENT ACTIVITY
+//=======================================
+
+function loadRecentActivity() {
+  $.getJSON("ajax/get_recent_activity.php", function (rows) {
+    let html = "";
+
+    if (!rows.length) {
+      html = `
+        <div class="text-muted text-center py-4">
+            No recent activity.
+        </div>
+      `;
+    } else {
+      rows.forEach(function (row) {
+        const fullName = [row.first_name, row.middle_name, row.last_name]
+          .filter(Boolean)
+          .join(" ");
+
+        html += `
+
+<div class="activity-item border-bottom py-3">
+
+    <div class="d-flex justify-content-between">
+
+        <div>
+
+            <div class="fw-semibold">
+
+                ${fullName}
+
+            </div>
+
+            <div class="text-primary">
+
+                ${row.activity}
+
+            </div>
+
+            <div class="text-muted small">
+
+                ${row.description}
+
+            </div>
+
+        </div>
+
+        <small class="text-secondary text-nowrap">
+
+            ${row.created_at}
+
+        </small>
+
+    </div>
+
+</div>
+
+`;
+      });
+    }
+
+    $("#recentActivity").html(html);
   });
 }
 
@@ -86,7 +155,7 @@ function loadDashboardStats() {
   });
 }
 
-function loadRecentEnrollments() {
+/*function loadRecentEnrollments() {
   $.getJSON("ajax/get_recent_enrollments.php", function (rows) {
     let html = "";
 
@@ -121,7 +190,7 @@ function loadRecentEnrollments() {
 
     $("#recentEnrollments").html(html);
   });
-}
+}*/
 
 //=======================================
 // MOBILE SIDEBAR

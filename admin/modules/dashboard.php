@@ -90,7 +90,7 @@
 
         <div class="col-lg-5">
 
-            <div class="dashboard-card">
+            <div class="dashboard-card h-100">
 
                 <h5 class="mb-3">
                     Quick Actions
@@ -135,26 +135,6 @@
                             <small>Add a new subject</small>
                         </div>
 
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-lg-7">
-
-            <div class="dashboard-card">
-
-                <h5 class="mb-3">
-                    Recent Activity
-                </h5>
-
-                <div id="recentEnrollments">
-
-                    <div class="text-muted">
-                        Loading...
                     </div>
 
                 </div>

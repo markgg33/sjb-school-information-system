@@ -1,6 +1,7 @@
 <?php
 
 require_once '../../includes/db.php';
+require_once '../../includes/activity_logger.php';
 require_once '../../includes/sessions.php';
 
 header('Content-Type: application/json');
@@ -26,9 +27,9 @@ if (
 
 try {
 
-//=======================================
-// CHECK IF SUBJECT CODE ALREADY EXISTS
-//=======================================
+    //=======================================
+    // CHECK IF SUBJECT CODE ALREADY EXISTS
+    //=======================================
     $stmt = $pdo->prepare("
     SELECT id
     FROM subjects
@@ -73,6 +74,14 @@ try {
             $id
         ]);
 
+        logActivity(
+            $_SESSION['user_id'],
+            $_SESSION['role'],
+            'Updated Subject',
+            "Updated {$subject_code} - {$subject_name}",
+            $id
+        );
+
         echo json_encode([
             'success' => true,
             'message' => 'Subject updated successfully.'
@@ -99,6 +108,13 @@ try {
             $description,
             $status
         ]);
+
+        logActivity(
+            $_SESSION['user_id'],
+            $_SESSION['role'],
+            'Created Subject',
+            "Created {$subject_code} - {$subject_name}"
+        );
 
         echo json_encode([
             'success' => true,

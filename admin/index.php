@@ -150,6 +150,11 @@ if ($_SESSION['role'] !== 'admin') {
                         Profile Settings
                     </li>
 
+                    <li data-page="system-settings">
+                        <i class="fa-solid fa-user-gear"></i>
+                        System Settings
+                    </li>
+
                 </ul>
 
             </div>

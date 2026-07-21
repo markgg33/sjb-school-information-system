@@ -1,6 +1,8 @@
 <?php
 
 require_once '../../includes/db.php';
+require_once '../../includes/activity_logger.php';
+require_once '../../includes/sessions.php';
 
 header('Content-Type: application/json');
 
@@ -70,6 +72,17 @@ try {
             $id
         ]);
 
+        if ($success) {
+
+            logActivity(
+                $_SESSION['user_id'],
+                $_SESSION['role'],
+                'Updated Course',
+                "Updated {$course_code} - {$course_name}",
+                $id
+            );
+        }
+
         echo json_encode([
             'success' => $success,
             'message' => $success
@@ -120,6 +133,16 @@ try {
         $description,
         $status
     ]);
+
+    if ($success) {
+
+        logActivity(
+            $_SESSION['user_id'],
+            $_SESSION['role'],
+            'Created Course',
+            "Created {$course_code} - {$course_name}"
+        );
+    }
 
     echo json_encode([
         'success' => $success,
